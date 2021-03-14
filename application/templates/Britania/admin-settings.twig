@@ -1,0 +1,58 @@
+{% extends "html.twig" %}
+
+{% block content %}
+<h1>Administration</h1>
+<ul id="breadcrump">
+  <li><a href="{{ url_for('home') }}">{{ lang['home'] }}</a></li>
+  <li><a href="{{ url_for('admin-home') }}">{{ lang['administration_title'] }}</a></li>
+  <li>{{ lang['administration_settings_title'] }}</li>
+</ul>
+
+<div id="middle">
+    <h2>{{ lang['administration_settings_title'] }}</h2>
+
+    <center>
+      <form method="post">
+      {% for setting in settings %}
+        {% if(setting.setting == "current_lang") %}
+          <label>{{ setting.description }} :</label>
+          <select name="{{ setting.setting }}">
+                <option value="fr" {% if (setting.value == "fr") %}selected{% endif %}>FR</option>
+                <option value="en" {% if (setting.value == "en") %}selected{% endif %}>EN</option>
+          </select><br/>
+        {% elseif(setting.setting == "use_wiki") %}
+          <label>{{ setting.description }} :</label>
+          <select name="{{ setting.setting }}">
+                <option value="true" {% if (setting.value == "true") %}selected{% endif %}>{{ lang['my_account_yes'] }}</option>
+                <option value="false" {% if (setting.value == "false") %}selected{% endif %}>{{ lang['my_account_no'] }}</option>
+          </select><br/>
+        {% elseif(setting.setting == "use_custom_game_pages") %}
+          <label>{{ setting.description }} :</label>
+          <select name="{{ setting.setting }}">
+                <option value="true" {% if (setting.value == "true") %}selected{% endif %}>{{ lang['my_account_yes'] }}</option>
+                <option value="false" {% if (setting.value == "false") %}selected{% endif %}>{{ lang['my_account_no'] }}</option>
+          </select><br/>
+        {% elseif(setting.setting == "use_nav_community") %}
+          <label>{{ setting.description }} :</label>
+          <select name="{{ setting.setting }}">
+                <option value="true" {% if (setting.value == "true") %}selected{% endif %}>{{ lang['my_account_yes'] }}</option>
+                <option value="false" {% if (setting.value == "false") %}selected{% endif %}>{{ lang['my_account_no'] }}</option>
+          </select><br/>
+        {% elseif(setting.setting == "use_right_community_button") %}
+          <label>{{ setting.description }} :</label>
+          <select name="{{ setting.setting }}">
+                <option value="true" {% if (setting.value == "true") %}selected{% endif %}>{{ lang['my_account_yes'] }}</option>
+                <option value="false" {% if (setting.value == "false") %}selected{% endif %}>{{ lang['my_account_no'] }}</option>
+          </select><br/>
+          {% elseif(setting.setting == "api_password") %}
+            <label>{{ setting.description }} :</label> <input name ="{{ setting.setting }}" type="password" placeholder="{{ setting.default_value }}" value="{{ setting.value }}"></input><br />
+          {% else %}
+          <label>{{ setting.description }} :</label> <input name ="{{ setting.setting }}" type="text" placeholder="{{ setting.default_value }}" value="{{ setting.value }}"></input><br />
+        {% endif %}
+      {% endfor %}
+      <br /><br />
+      <button style="padding: 15px 90px!important;" name="settingsSend" class="customBTN" type="sumbit">{{ lang['button_submit_title'] }}</button>
+      </form>
+    </center>
+</div>
+{% endblock %}

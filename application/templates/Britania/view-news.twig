@@ -1,0 +1,55 @@
+{% extends "html.twig" %}
+
+{% block title %}
+	{{ pageTitle }}
+{% endblock %}
+
+{% block seo %}
+	<!-- Primary Meta Tags -->
+	<meta name="title" content="{{ pageTitle }}">
+    <meta name="description" content="DragonBallZ: Shukuteki, jeu retrancant l'histoire originale de l'animé en jeu MMORPG 2D, le jeu n'attend plus que vous !">
+
+	<!-- Open Graph / Facebook -->
+	<meta property="og:type" content="website">
+	<meta property="og:url" content="{{current_url}}">
+	<meta property="og:title" content="{{ pageTitle }}">
+	<meta property="og:image" content="{{ globalAssetsPath }}/news/{{ img_url }}">
+    <meta property="og:description" content="DragonBallZ: Shukuteki, jeu retrancant l'histoire originale de l'animé en jeu MMORPG 2D, le jeu n'attend plus que vous !">
+
+	<!-- Twitter -->
+	<meta property="twitter:card" content="summary_large_image">
+	<meta property="twitter:url" content="{{current_url}}">
+	<meta property="twitter:title" content="{{ pageTitle }}">
+	<meta property="twitter:description" content="DragonBallZ: Shukuteki, jeu retrancant l'histoire originale de l'animé en jeu MMORPG 2D, le jeu n'attend plus que vous !">
+	<meta property="twitter:image" content="{{ globalAssetsPath }}/news/{{ img_url }}">
+{% endblock %}
+
+{% block content %}
+
+	<h1>{{ lang['news'] }}</h1>
+	<ul id="breadcrump">
+		<li>
+			<a href="{{ url_for('home') }}">{{ lang['home'] }}</a>
+		</li>
+		<li>{{ pageTitle }}</li>
+	</ul>
+	<div id="news" class="read">
+		<article>
+			<div class="header" style="background-image:url('{{ globalAssetsPath }}/news/{{ img_url }}');">
+				<h2><img src="{{ assetsPath }}/img/i_news.png">
+					{{ pageTitle }}</h2>
+			</div>
+
+			<p>{{ content | raw }}</p>
+
+			<div class="footer">
+				{{ lang['news_posted_on'] }}
+				<strong>{{ date }}</strong>
+				{{ lang['news_by'] }}
+				<strong>{{ author }}</strong>.
+			</div>
+		</article>
+		<div class="clear"></div>
+	</div>
+
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends "html.twig" %}
+
+{% block content %}
+	<h1>{{ lang['leaders'] }}</h1>
+	<ul id="breadcrump">
+		<li>
+			<a href="{{ url_for('home') }}">{{ lang['home'] }}</a>
+		</li>
+		<li>{{ lang['leaders'] }}</li>
+	</ul>
+
+	<div id="middle">
+
+		<h2>{{ lang['leader_pve_title'] }}</h2>
+		<table class="ladder">
+			<thead>
+				<tr>
+					<th>Id de l'item</th>
+					<th class="c">Nom de l'item</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for item in items %}
+					<tr>
+
+						<td class="item_id">
+                        {{ item.id }}
+                        </td>
+						<td class="c">{{ item.name }}</td>
+					</tr>
+				{% else %}
+					<div class="alert alert-info">
+						Aucune information disponible.
+					</div>
+				{% endfor %}
+			</tbody>
+		</table>
+        
+		<nav aria-label="Page navigation example">
+			<ul class="pagination">
+				{% for i in 0..page_max %}
+					<li class="page-item  {% if page_actuel == i %}active{% endif %}">
+						<a class="page-link" href="{{ url_for('admin-items', { 'page': i }) }}">{{ i }}</a>
+					</li>
+				{% endfor %}
+			</ul>
+		</nav>
+        
+	</div>
+{% endblock %}
+
+{% block footerjs %}
+	<script type="text/javascript" src="{{ assetsPath }}js/admin/items.js"></script>
+{% endblock %}

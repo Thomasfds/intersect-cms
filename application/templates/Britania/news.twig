@@ -1,0 +1,27 @@
+{% extends "html.twig" %}
+{% block title %}Accueil{% endblock %}
+{% block content %}
+<h1>{{ lang['news'] }}</h1>
+<ul id="breadcrump">
+  <li><a href="{{ url_for('home') }}">{{ lang['home'] }}</a></li>
+  <li>{{ lang['news'] }}</li>
+</ul>
+
+<div id="news">
+
+{% for new in news %}
+  <article>
+    <div class="header" style="background-image:url('{{globalAssetsPath}}news/{{ new.img_url }}');">
+      <h2><img src="{{assetsPath}}img/i_news.png"/> {{ new.title }}</h2>
+    </div>
+    <p>{{ (new.content|striptags|length) > 380 ? ((new.content|striptags|slice(0, 380)) ~ '...')|raw : (new.content|striptags|raw)  }}</p>
+    <div class="footer">
+      {{ lang['news_posted_on'] }} <strong>{{ new.date }}</strong> {{ lang['news_by'] }} <strong>{{ new.author }}</strong>.
+      <a href="{{ url_for('news', { 'id': new.id }) }}"><img src="{{assetsPath}}img/i_bulle.png"/> {{ lang['news_reed_more'] }}</a>
+    </div>
+  </article>
+  {% endfor %}
+
+  <div class="clear"></div>
+</div>
+{% endblock %}

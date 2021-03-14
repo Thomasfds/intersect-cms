@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<!-- Required meta tags -->
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+		<title>{% block title %}{% endblock %} - {{ lang['game_title'] }} | {{ lang['game_min_desc'] }}</title>
+		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
+		<link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/3.3.0/mdb.min.css" rel="stylesheet"/>
+		<link rel="stylesheet" type="text/css" href="{{ assetsPath }}css/stylesheet.css"/>
+		<link rel="stylesheet" type="text/css" href="{{ assetsPath }}css/fontawesome.css"/>
+		<link rel="stylesheet" type="text/css" href="{{ assetsPath }}css/StackModal.min.css"/>
+		<link rel="stylesheet" type="text/css" href="{{ assetsPath }}css/StackCustom.min.css"/>
+
+{% block seo %}
+		<!-- Primary Meta Tags -->
+		<meta name="title" content="{{ lang['game_title'] }} | {{ lang['game_min_desc'] }}">
+		<meta name="description" content="DragonBallZ: Shukuteki, jeu retrancant l'histoire originale de l'animé en jeu MMORPG 2D, le jeu n'attend plus que vous !">
+
+		<!-- Open Graph / Facebook -->
+		<meta property="og:type" content="website">
+		<meta property="og:url" content="{{current_url}}">
+		<meta property="og:title" content="{{ lang['game_title'] }} | {{ lang['game_min_desc'] }}">
+		<meta property="og:description" content="DragonBallZ: Shukuteki, jeu retrancant l'histoire originale de l'animé en jeu MMORPG 2D, le jeu n'attend plus que vous !">
+		<meta property="og:image" content="{{ globalAssetsPath }}seo/seo.png">
+
+		<!-- Twitter -->
+		<meta property="twitter:card" content="summary_large_image">
+		<meta property="twitter:url" content="{{current_url}}">
+		<meta property="twitter:title" content="{{ lang['game_title'] }} | {{ lang['game_min_desc'] }}">
+		<meta property="twitter:description" content="DragonBallZ: Shukuteki, jeu retrancant l'histoire originale de l'animé en jeu MMORPG 2D, le jeu n'attend plus que vous !">
+		<meta property="twitter:image" content="{{ globalAssetsPath }}seo/seo.png">
+{% endblock %}
+
+	</head>
+
+	<body>
+
+		<header>
+			<div class="ct">
+				{% if not nav_community %}
+					<a id="logotype" href="{{ url_for('home') }}">
+						{{ lang['game_title'] }}
+						<small>{{ lang['game_min_desc'] }}</small>
+					</a>
+				{% endif %}
+				<nav>
+					<ul class="nav">
+						<li>
+							<a href="{{ url_for('home') }}">{{ lang['home'] }}
+								<span class="ico_home"></span>
+							</a>
+						</li>
+						<li class="sub">
+							{{ lang['game'] }}<span class="ico_caret-down"></span>
+							<ul class="submenu">
+								{% if not session.user_Id %}
+									<li>
+										<a href="{{ url_for('register') }}">{{ lang['register'] }}</a>
+									</li>
+								{% endif %}
+								{% for gamepage in gamePages %}
+									<li>
+										<a href="{{ url_for('gamepage', { 'unique_slug': gamepage.unique_slug }) }}">{{ gamepage.name }}</a>
+									</li>
+								{% endfor %}
+								<li>
+									<a href="{{ url_for('playerList') }}">{{ lang['playersList'] }}</a>
+								</li>
+
+							</ul>
+						</li>
+						<li class="sub">
+							{{ lang['leaders'] }}
+							<span class="ico_caret-down"></span>
+							<ul class="submenu">
+								<li>
+									<a href="{{ url_for('leader') }}">{{ lang['leader_environment'] }}</a>
+								</li>
+							</ul>
+						</li>
+						<li class="sub">
+							{{ lang['community'] }}
+							<span class="ico_caret-down"></span>
+							<ul class="submenu">
+								<li>
+									<a href="{{ lang['discord_link'] }}">{{ lang['discord'] }}</a>
+								</li>
+								<li>
+									<a href="{{ lang['forum_link'] }}">{{ lang['forum'] }}</a>
+								</li>
+								<li>
+									<a href="{{ lang['twitter_link'] }}">{{ lang['twitter'] }}</a>
+								</li>
+								<li>
+									<a href="{{ lang['facebook_link'] }}">{{ lang['facebook'] }}</a>
+								</li>
+							</ul>
+						</li>
+						<li class="sub">
+							{{ lang['shop'] }}
+							<span class="ico_caret-down"></span>
+							<ul class="submenu">
+								<li>
+									<a href="{{ url_for('shop-list') }}">{{ lang['shop_cat_all'] }}</a>
+								</li>
+								<li>
+									<a href="{{ url_for('shop-list-cat', { 'cat': 1 }) }}">{{ lang['shop_cat_items'] }}</a>
+								</li>
+								<li>
+									<a href="{{ url_for('shop-list-cat', { 'cat': 2 }) }}">{{ lang['shop_cat_usable'] }}</a>
+								</li>
+								<li>
+									<a href="{{ url_for('shop-list-cat', { 'cat': 3 }) }}">{{ lang['shop_cat_money'] }}</a>
+								</li>
+								<li>
+									<a href="{{ url_for('shop-list-cat', { 'cat': 4 }) }}">{{ lang['shop_cat_spells'] }}</a>
+								</li>
+								<li>
+									<a href="{{ url_for('shop-list-cat', { 'cat': 5 }) }}">{{ lang['shop_cat_events'] }}</a>
+								</li>
+								<li>
+									<a href="{{ url_for('shop-list-cat', { 'cat': 6 }) }}">{{ lang['shop_cat_bags'] }}</a>
+								</li>
+							</ul>
+						</li>
+						<li class="sub">
+							{{ lang['encyclopedia'] }}
+							<span class="ico_caret-down"></span>
+							<ul class="submenu">
+								{% for wikipage in wikiPages %}
+									<li>
+										<a href="{{ url_for('wikipage', { 'unique_slug': wikipage.unique_slug }) }}">{{ wikipage.name }}</a>
+									</li>
+								{% endfor %}
+							</ul>
+						</li>
+						{% if session.user_Id %}
+							<li class="sub">
+								{{ lang['profil'] }}
+								({{ session.user_Name }})
+								<span class="ico_caret-down"></span>
+								<ul class="submenu">
+									<li>
+										<a href="{{ url_for('my_account') }}">{{ lang['account_settings'] }}</a>
+									</li>
+									<li>
+										<a href="{{ url_for('logout') }}">{{ lang['disconnect'] }}</a>
+									</li>
+								</ul>
+							</li>
+						{% endif %}
+					</nav>
+					<div class="panel">
+						<a data-nav="no" class="link menu">
+							<div class="ico_navicon"></div>
+						</a>
+						{% if not session.user_Id %}
+							<a href="#LoginWnd" rel="modal:open" class="link" title="{{ lang['login_panel_login'] }}">
+								<div class="ico_lock"></div>
+							</a>
+							<a href="{{ url_for('register') }}" class="link" title="{{ lang['login_panel_register'] }}">
+								<div class="ico_user-plus"></div>
+							</a>
+						{% endif %}
+					</div>
+				</div>
+			</header>
+
+			{% if not session.user_Id %}
+				<div id="LoginWnd" class="modal">
+					<h1>
+						<div class="ico_lock"></div>
+						{{ lang['login_to_site'] }}
+					</h1>
+					<ul id="breadcrump">
+						<li>{{ lang['login_to_site_desc'] | raw }}</li>
+					</ul>
+					<div id="middle">
+						<form method="post" action="{{ url_for('login') }}">
+							<center>
+								<label for="formuser">
+									<span>*</span>
+									{{ lang['login_account'] }}
+									:
+								</label>
+								<input type="text" name="formuser" value="">
+								<label for="formpass">
+									<span>*</span>
+									{{ lang['login_password'] }}
+									:
+								</label>
+								<input type="password" name="formpass" value="">
+								<button name="connection" type="sumbit">{{ lang['login_log_me'] }}</button>
+							</center>
+						</form>
+					</div>
+				</div>
+			{% endif %}
+
+			<div class="ct">
+				<a id="logo" href="{{ url_for('home') }}" title="{{ lang['home'] }}"><img src="{{ assetsPath }}img/logotype.png"/></a>
+				<main>
+
+					<div id="content"> {% block content %}{% endblock %}
+						</div>
+						<aside>
+							{% if server_infos.uptime %}
+								<a class="butt serverOnline">
+									<span class="illu"></span>
+									{{ lang['menu_server_state'] }}
+									<small>{{ lang['menu_server_online'] }}
+										({{ server_infos.onlineCount }}
+										{{ lang['menu_server_player'] }}
+										{% if server_infos.onlineCount > 1 %}s
+										{% endif %})</small>
+								</a>
+							{% else %}
+								<a class="butt serverOffline">
+									<span class="illu"></span>
+									{{ lang['menu_server_state'] }}
+									<small>{{ lang['menu_server_offline'] }}</small>
+								</a>
+							{% endif %}
+							{% if session.isAdmin and session.isAdmin == 1 %}
+								<a href="{{ url_for('admin-home') }}" class="butt ladder">
+									<span class="illu"></span>
+									{{ lang['menu_administration_title'] }}
+									<small>{{ lang['menu_administration_desc'] }}</small>
+								</a>
+							{% endif %}
+							{% if session.user_Id %}
+								<a href="{{ url_for('my_account') }}" class="butt joins">
+									<span class="illu"></span>
+									{{ session.user_Name }}
+									<small>{{ lang['menu_my_profile'] }}
+										- ({{ session.points }}
+										{{ lang['points'] }})</small>
+								</a>
+							{% endif %}
+							{% if cms_settings.use_right_community_button == "true" %}
+								{% if not lang['forum_link'] == "" %}
+									<a href="{{ lang['forum_link'] }}" class="butt forum">
+										<span class="illu"></span>
+										{{ lang['forum'] }}
+										<small>{{ lang['discuss_with_players'] }}</small>
+									</a>
+								{% endif %}
+								{% if not lang['discord_link'] == "" %}
+									<a href="{{ lang['discord_link'] }}" class="butt discord">
+										<span class="illu"></span>
+										{{ lang['discord'] }}
+										<small>{{ lang['discuss_with_players'] }}</small>
+									</a>
+								{% endif %}
+								{% if not lang['facebook_link'] == "" %}
+									<a href="{{ lang['facebook_link'] }}" class="butt facebook">
+										<span class="illu"></span>
+										{{ lang['facebook'] }}
+										<small>{{ lang['follow_us_on_facebook'] }}</small>
+									</a>
+								{% endif %}
+								{% if not lang['twitter_link'] == "" %}
+									<a href="{{ lang['twitter_link'] }}" class="butt twitter">
+										<span class="illu"></span>
+										{{ lang['twitter'] }}
+										<small>{{ lang['follow_us_on_twitter'] }}</small>
+									</a>
+								{% endif %}
+							{% endif %}
+						</aside>
+					</main>
+					<footer>
+						<p>
+							<strong>{{ lang['game_title'] }}
+								© 2020</strong>.
+							{{ lang['all_rights_reserved'] }}
+							<br/>
+							{{ lang['graphic_concept_by'] | raw }}
+							<br/>
+							{{ lang['developped_by'] | raw }}
+						</p>
+					</footer>
+				</div>
+
+				<script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+				<script type="text/javascript" src="{{ assetsPath }}js/interface.js"></script>
+				<script type="text/javascript" src="{{ assetsPath }}js/StackModal.min.js"></script>
+				{% block footerjs %}{% endblock %}
+			</body>
+		</body>
+	</html>

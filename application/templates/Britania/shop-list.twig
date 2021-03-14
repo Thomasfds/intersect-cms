@@ -1,0 +1,30 @@
+{% extends "html.twig" %}
+
+{% block content %}
+<h1>{{ lang['shop'] }}</h1>
+<ul id="breadcrump">
+  <li><a href="{{ url_for('home') }}">{{ lang['home'] }}</a></li>
+  <li>{{ lang['shop'] }}</li>
+</ul>
+
+<div id="shop">
+
+{% for item in shop %}
+  <article>
+    <div class="header" style="height: 60px;">
+      <img src="{{globalAssetsPath}}gamedata/items/{{ item.itemData.Icon }}" style="width: 50px;height: 50px;margin: 5px 10px 0px 5px;float: left;"></img>
+      <br /><b style="text-transform: uppercase;color: #2e3a4e;text-shadow: 0 1px 3px rgba(0,0,0,.15);font-size: 20px;font-family: 'Montserrat', 'proxima-nova_bold', Helvetica, Arial, sans-serif;font-weight: 800;">{{ item.itemData.Name }}</b> {% if (item.Quantity > 1) %} <span style="color: #2e3a4e;text-shadow: 0 1px 3px rgba(0,0,0,.15);font-size: 20px;font-family: 'Montserrat', 'proxima-nova_bold', Helvetica, Arial, sans-serif;font-weight: 800;">(x{{ item.Quantity }})</span>{% endif %} {% if (item.Promotion > 0) %} <span style="color: #e02020;text-shadow: 0 1px 3px rgba(0,0,0,.15);font-size: 16px;font-family: 'Montserrat', 'proxima-nova_bold', Helvetica, Arial, sans-serif;font-weight: 500;">-{{ item.Promotion }}%</span>{% endif %}
+    </div>
+    <p style="height: auto;"><b>{% if(item.itemData.ItemType == 1) %}{{ lang['shop_cat_items'] }}{% elseif(item.itemData.ItemType == 2) %}{{ lang['shop_cat_usable'] }}{% elseif(item.itemData.ItemType == 3) %}{{ lang['shop_cat_money'] }}{% elseif(item.itemData.ItemType == 4) %}{{ lang['shop_cat_spells'] }}{% elseif(item.itemData.ItemType == 5) %}{{ lang['shop_cat_events'] }}{% elseif(item.itemData.ItemType == 6) %}{{ lang['shop_cat_bags'] }}{% endif %}</b><br /><br />
+    {{ item.Desc|striptags|length > 380 ? (item.Desc|striptags|slice(0, 380))|raw ~ '...' : (item.Desc|striptags)|raw  }}
+  </p>
+    <div class="footer">
+      <strong>{{ item.Price }} {{ lang['points'] }}</strong>
+      <a href="{{ url_for('shop-detail', { 'id': item.id }) }}"><img src="{{assetsPath}}img/i_basket.png" width="25px"/></a>
+    </div>
+  </article>
+  {% endfor %}
+
+  <div class="clear"></div>
+</div>
+{% endblock %}

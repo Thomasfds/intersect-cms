@@ -1,0 +1,97 @@
+{% extends "html.twig" %}
+
+{% block content %}
+<h1>Administration</h1>
+<ul id="breadcrump">
+  <li><a href="{{ url_for('home') }}">{{ lang['home'] }}</a></li>
+  <li><a href="{{ url_for('admin-home') }}">{{ lang['administration_title'] }}</a></li>
+  <li>{{ lang['administration_news_title'] }}</li>
+</ul>
+
+<div id="middle">
+  {% if newsEdit != null %}
+    <h2>{{ lang['administration_edit_news_title'] }}</h2>
+  {% else %}
+    <h2>{{ lang['administration_add_news_title'] }}</h2>
+  {% endif %}
+
+    <center>
+      <form method="post">
+      <input name ="nTitle" type="text" placeholder="{{ lang['administration_news_title_placeholder'] }}" value="{{ newsEdit.title }}"></input>
+      <select name="nImg">
+        {% for img in imgList %}
+          {% if ((img != ".") and (img != "..")) %}
+            <option value="{{ img }}" {% if (img == newsEdit.img_url) %}selected{% endif %}>{{ img }}</option>
+          {% endif %}
+        {% endfor %}
+      </select>
+      <textarea name ="nContent" id="editor" class="editor" style="height:500px;">{{ newsEdit.content }}</textarea>
+      <br />
+      <button style="padding: 15px 90px!important;" class="customBTN" type="sumbit">{{ lang['button_submit_title'] }}</button>
+      </form>
+    </center>
+
+    <h2>{{ lang['administration_news_list_title'] }}</h2>
+    <table class="ladder">
+        <thead>
+            <tr>
+                <th class="c">{{ lang['administration_news_column_title'] }}</th>
+                <th class="c">{{ lang['administration_news_column_date'] }}</th>
+                <th class="c">{{ lang['administration_news_column_image'] }}</th>
+                <th class="c">{{ lang['administration_news_column_options'] }}</th>
+            </tr>
+        </thead>
+        <tbody>
+          {% for new in news %}
+          <tr>
+          <td class="c">{{ new.title }}</td>
+          <td class="c">{{ new.date }}</td>
+          <td class="c"><img src="{{globalAssetsPath}}news/{{ new.img_url }}" width="50%"/></td>
+          <td class="c"><a href="{{ url_for('admin-edit-news', { 'id': new.id }) }}">{{ lang['administration_item_options_edit'] }}</a> - <a href="{{ url_for('admin-delete-news', { 'id': new.id }) }}">{{ lang['administration_item_options_delete'] }}</a></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+</div>
+{% endblock %}
+
+{% block footerjs %}
+<script
+    type="text/javascript"
+    src='https://cdn.tiny.cloud/1/no-api-key/tinymce/5/tinymce.min.js'
+    referrerpolicy="origin">
+  </script>
+  <script type="text/javascript">
+  tinymce.init({
+    selector:'textarea',
+    language: '{{ lang['administration_tinymce_lang'] }}',
+    plugins: [
+      'advlist autolink link image imagetools lists charmap print preview hr anchor pagebreak spellchecker',
+      'searchreplace wordcount visualblocks visualchars code fullscreen insertdatetime media nonbreaking',
+      'table emoticons template paste help autoresize autosave'
+    ],
+    toolbar: 'undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | ' +
+      'bullist numlist outdent indent | link image | print preview media fullpage | ' +
+      'forecolor backcolor emoticons | restoredraft help',
+    menu: {
+      favs: {title: '{{ lang['administration_tinymce_fav'] }}', items: 'code visualaid | searchreplace | spellchecker | emoticons'}
+    },
+    a11y_advanced_options: true,
+    image_advtab: true,
+    image_title: true,
+    autoresize_bottom_margin: 50,
+    autosave_ask_before_unload: false,
+    style_formats: [
+      {title: 'Image Left', selector: 'img', styles: {
+        'float' : 'left',
+        'margin': '0 10px 0 10px'
+      }},
+      {title: 'Image Right', selector: 'img', styles: {
+        'float' : 'right',
+        'margin': '0 10px 0 10px'
+      }}
+    ],
+    menubar: 'favs file edit view insert format tools table help'
+  });
+  </script>
+{% endblock %}

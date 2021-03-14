@@ -1,0 +1,60 @@
+{% extends "html.twig" %}
+
+{% block content %}
+<h1>{{ lang['account_manage'] }}</h1>
+<ul id="breadcrump">
+  <li><a href="{{ url_for('home') }}">{{ lang['home'] }}</a></li>
+  <li>{{ lang['account_manage'] }}</li>
+</ul>
+
+<div id="middle">
+  <h2>{{ lang['my_account_personnal_informations_title'] }}</h2>
+  <center>
+  <table class="ladder">
+  <tr>
+  <td width="170" class="r"><strong>{{ lang['my_account_username'] }} :</strong></td>
+  <td><span>{{ account.Name }}</span></td>
+  </tr>
+  <tr>
+  <td width="170" class="r"><strong>{{ lang['my_account_email'] }} :</strong></td>
+  <td><span>{{ account.Email }}</span></td>
+  </tr>
+  <tr>
+  </table>
+  </center>
+
+  <h2>Informations web{{ lang['my_account_web_informations'] }}</h2>
+  <center>
+  <table class="ladder">
+  <tr>
+  <td width="170" class="r"><strong>{{ lang['points'] }} :</strong></td>
+  <td><span>{{ webInfos.points }} <a href="{{ url_for('user-buy-credits') }}">({{ lang['buy_credits_title'] }})</a></span></td>
+  </tr>
+  </table>
+  </center>
+
+    <h2>{{ lang['my_account_my_characters'] }}</h2>
+    <table class="ladder">
+        <thead>
+            <tr>
+                <th class="i">{{ lang['my_account_player_name'] }}</th>
+                <th class="c">{{ lang['my_account_player_sexe'] }}</th>
+                <th class="c">{{ lang['my_account_player_class'] }}</th>
+                <th class="c">{{ lang['my_account_player_level'] }}</th>
+                <th class="c">{{ lang['my_account_player_exp'] }}</th>
+            </tr>
+        </thead>
+        <tbody>
+          {% for player in players %}
+          <tr>
+          <td class="i">{{ player.Name }}</td>
+          <td class="c">{% if (player.Gender == 0) %} M {% elseif (player.Gender == 1) %} F {% endif %}</td>
+          <td class="i">{% for class in classes %}{% if (class.Value.Id == player.ClassId) %}{{ class.Value.Name }}{% endif %}{% endfor %}</td>
+          <td class="c">{{ player.Level }}</td>
+          <td class="c">{{ player.Exp }}/{{ player.Exp + player.ExperienceToNextLevel }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+</div>
+{% endblock %}

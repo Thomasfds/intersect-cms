@@ -1,0 +1,68 @@
+{% extends "html.twig" %}
+
+{% block content %}
+<h1>{{ lang['news'] }}</h1>
+<ul id="breadcrump">
+  <li><a href="{{ url_for('home') }}">{{ lang['home'] }}</a></li>
+  <li>{{ lang['administration_title'] }}</li>
+</ul>
+
+<div id="news">
+
+<article>
+  <div class="header" style="background-image:url('{{assetsPath}}img/admin/news.jpg');">
+    <h2><img src="{{assetsPath}}img/i_news.png"/> {{ lang['administration_news_title'] }}</h2>
+  </div>
+  <div class="footer">
+    <a href="{{ url_for('admin-add-news') }}"><img src="{{assetsPath}}img/i_bulle.png"/> {{ lang['administration_access_title'] }}</a>
+  </div>
+</article>
+
+<article>
+  <div class="header" style="background-image:url('{{assetsPath}}img/admin/shop.jpg');">
+    <h2><img src="{{assetsPath}}img/i_news.png"/> {{ lang['administration_shop_title'] }}</h2>
+  </div>
+  <div class="footer">
+    <a href="{{ url_for('admin-add-shop') }}"><img src="{{assetsPath}}img/i_bulle.png"/> {{ lang['administration_access_title'] }}</a>
+  </div>
+</article>
+
+<article>
+  <div class="header" style="background-image:url('{{assetsPath}}img/admin/pages.jpg');">
+    <h2><img src="{{assetsPath}}img/i_news.png"/> {{ lang['administration_pages_title'] }}</h2>
+  </div>
+  <div class="footer">
+    <a href="{{ url_for('admin-add-pages') }}"><img src="{{assetsPath}}img/i_bulle.png"/> {{ lang['administration_access_title'] }}</a>
+  </div>
+</article>
+
+<article>
+  <div class="header" style="background-image:url('{{assetsPath}}img/admin/settings.jpg');">
+    <h2><img src="{{assetsPath}}img/i_news.png"/> {{ lang['administration_settings_title'] }}</h2>
+  </div>
+  <div class="footer">
+    <a href="{{  url_for('admin-edit-settings') }}"><img src="{{assetsPath}}img/i_bulle.png"/> {{ lang['administration_access_title'] }}</a>
+  </div>
+</article>
+
+<article>
+  <div class="header" style="background-image:url('{{assetsPath}}img/admin/settings.jpg');">
+    <h2><img src="{{assetsPath}}img/i_news.png"/> {{ lang['admin_itemsList'] }}</h2>
+  </div>
+  <div class="footer">
+    <a href="{{ url_for('admin-items', { 'page': 0 }) }}"><img src="{{assetsPath}}img/i_bulle.png"/> {{ lang['admin_itemsList_title'] }}</a>
+  </div>
+</article>
+
+<article>
+  <div class="header" style="background-image:url('{{assetsPath}}img/admin/settings.jpg');">
+    <h2><img src="{{assetsPath}}img/i_news.png"/> {{ lang['administration_translate_title'] }}</h2>
+  </div>
+  <div class="footer">
+    <a href="{{  url_for('admin-edit-translation') }}"><img src="{{assetsPath}}img/i_bulle.png"/> {{ lang['administration_access_title'] }}</a>
+  </div>
+</article>
+
+  <div class="clear"></div>
+</div>
+{% endblock %}

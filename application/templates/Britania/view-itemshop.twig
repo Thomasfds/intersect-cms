@@ -1,0 +1,86 @@
+{% extends "html.twig" %}
+
+{% block content %}
+<h1>{{ lang['shop'] }}</h1>
+<ul id="breadcrump">
+  <li><a href="{{ url_for('home') }}">{{ lang['home'] }}</a></li>
+  <li><a href="{{ url_for('shop-list') }}">{{ lang['shop'] }}</a></li>
+  <li>{{ itemShop.itemData.Name }}</li>
+</ul>
+<div id="news" class="read">
+    <article>
+        <div class="header" style="background-image:url('{{globalAssetsPath}}gamedata/items/{{ itemShop.itemData.Icon }}');width: 50px;height: 50px;margin: 5px 5px 0px 0px;float:right;"></div>
+        <p>
+          <b style="text-transform: uppercase;color: #213961;text-shadow: 0 1px 3px rgba(0,0,0,.15);font-size: 20px;font-family: 'Montserrat', 'proxima-nova_bold', Helvetica, Arial, sans-serif;font-weight: 800;">{{ itemShop.itemData.Name }}</b> {% if (item.Quantity > 1) %}<span style="color: #2e3a4e;text-shadow: 0 1px 3px rgba(0,0,0,.15);font-size: 20px;font-family: 'Montserrat', 'proxima-nova_bold', Helvetica, Arial, sans-serif;font-weight: 800;">(x{{ itemShop.Quantity }})</span>{% endif %} {% if (itemShop.Promotion > 0) %} <span style="color: #e02020;text-shadow: 0 1px 3px rgba(0,0,0,.15);font-size: 16px;font-family: 'Montserrat', 'proxima-nova_bold', Helvetica, Arial, sans-serif;font-weight: 500;">-{{ itemShop.Promotion }}%</span>{% endif %} ({{ itemShop.Price }} points)<br />
+        {% if(itemShop.itemData.ItemType == 1) %}{{ lang['shop_cat_items'] }}{% elseif(itemShop.itemData.ItemType == 2) %}{{ lang['shop_cat_usable'] }}{% elseif(itemShop.itemData.ItemType == 3) %}{{ lang['shop_cat_money'] }}{% elseif(itemShop.itemData.ItemType == 4) %}{{ lang['shop_cat_spells'] }}{% elseif(itemShop.itemData.ItemType == 5) %}{{ lang['shop_cat_events'] }}{% elseif(itemShop.itemData.ItemType == 6) %}{{ lang['shop_cat_bags'] }}{% endif %}
+        </p>
+        <p>{{ itemShop.Desc | raw }}</p>
+
+        <p>
+        {% if(itemShop.itemData.ItemType == 1) %}
+
+            {% if(itemShop.itemData.Damage != 0) %}
+              <b>{{ lang['itemstats_weapon_stats_title'] }} :</b><br />
+              {{ lang['itemstats_damages'] }} : {{ itemShop.itemData.Damage }}<br />
+              {{ lang['itemstats_damagestype'] }} : {% if(itemShop.itemData.DamageType == 0) %}{{ lang['itemstats_damagestype_physical'] }}{% elseif(itemShop.itemData.DamageType == 1) %}{{ lang['itemstats_damagestype_magical'] }}{% elseif(itemShop.itemData.DamageType == 2) %}{{ lang['itemstats_damagestype_true'] }}{% endif %}<br />
+              {{ lang['itemstats_scalingstat'] }} : {% if(itemShop.itemData.ScalingStat == 0) %}{{ lang['itemstats_stat_atk'] }}{% elseif(itemShop.itemData.ScalingStat == 1) %}{{ lang['itemstats_stat_abpwr'] }}{% elseif(itemShop.itemData.ScalingStat == 2) %}{{ lang['itemstats_stat_def'] }}{% elseif(itemShop.itemData.ScalingStat == 3) %}{{ lang['itemstats_stat_magres'] }}{% elseif(itemShop.itemData.ScalingStat == 4) %}{{ lang['itemstats_stat_spd'] }}{% endif %}<br />
+              {{ lang['itemstats_scalingamount'] }} : {{ itemShop.itemData.Scaling }}%<br /><br />
+            {% endif %}
+
+            {%
+              if(itemShop.itemData.VitalsGiven[0] != 0) or (itemShop.itemData.PercentageVitalsGiven[0] != 0) or
+              (itemShop.itemData.VitalsGiven[1] != 0) or (itemShop.itemData.PercentageVitalsGiven[1] != 0)
+            %}
+              <b>{{ lang['itemstats_vitals_title'] }} :</b><br />
+              +{{ lang['itemstats_vitals_hp'] }} : {% if(itemShop.itemData.VitalsGiven[0] != 0) %}+{{ itemShop.itemData.VitalsGiven[0] }}{% endif %} {% if(itemShop.itemData.PercentageVitalsGiven[0] != 0) %}+ {{ itemShop.itemData.PercentageVitalsGiven[0] }}%{% endif %}<br />
+              +{{ lang['itemstats_vitals_mp'] }} : {% if(itemShop.itemData.VitalsGiven[1] != 0) %}+{{ itemShop.itemData.VitalsGiven[1] }}{% endif %} {% if(itemShop.itemData.PercentageVitalsGiven[1] != 0) %}+ {{ itemShop.itemData.PercentageVitalsGiven[1] }}%{% endif %}<br /><br />
+            {% endif %}
+
+            {%
+              if(itemShop.itemData.StatsGiven[0] != 0) or (itemShop.itemData.PercentageStatsGiven[0] != 0) or
+              (itemShop.itemData.StatsGiven[1] != 0) or (itemShop.itemData.PercentageStatsGiven[1] != 0) or
+              (itemShop.itemData.StatsGiven[2] != 0) or (itemShop.itemData.PercentageStatsGiven[2] != 0) or
+              (itemShop.itemData.StatsGiven[3] != 0) or (itemShop.itemData.PercentageStatsGiven[3] != 0) or
+              (itemShop.itemData.StatsGiven[4] != 0) or (itemShop.itemData.PercentageStatsGiven[4] != 0)
+            %}
+              <b>{{ lang['itemstats_stats_title'] }} :</b><br />
+              {% if(itemShop.itemData.StatsGiven[0] != 0) or (itemShop.itemData.PercentageStatsGiven[0] != 0) %}
+                +{{ lang['itemstats_stat_atk'] }} : {% if(itemShop.itemData.StatsGiven[0] != 0) %}{{ itemShop.itemData.StatsGiven[0] - itemShop.itemData.StatGrowth }} à {{ itemShop.itemData.StatsGiven[0] + itemShop.itemData.StatGrowth }}{% endif %} {% if(itemShop.itemData.PercentageStatsGiven[0] != 0) %}+ {{ itemShop.itemData.PercentageStatsGiven[0] }}%{% endif %}<br />
+              {% endif %}
+              {% if(itemShop.itemData.StatsGiven[1] != 0) or (itemShop.itemData.PercentageStatsGiven[1] != 0) %}
+                +{{ lang['itemstats_stat_abpwr'] }} : {% if(itemShop.itemData.StatsGiven[1] != 0) %}{{ itemShop.itemData.StatsGiven[1] - itemShop.itemData.StatGrowth }} à {{ itemShop.itemData.StatsGiven[1] + itemShop.itemData.StatGrowth }}{% endif %} {% if(itemShop.itemData.PercentageStatsGiven[1] != 0) %}+ {{ itemShop.itemData.PercentageStatsGiven[1] }}%{% endif %}<br />
+              {% endif %}
+              {% if(itemShop.itemData.StatsGiven[2] != 0) or (itemShop.itemData.PercentageStatsGiven[2] != 0) %}
+                +{{ lang['itemstats_stat_def'] }} : {% if(itemShop.itemData.StatsGiven[2] != 0) %}{{ itemShop.itemData.StatsGiven[2] - itemShop.itemData.StatGrowth }} à {{ itemShop.itemData.StatsGiven[2] + itemShop.itemData.StatGrowth }}{% endif %} {% if(itemShop.itemData.PercentageStatsGiven[2] != 0) %}+ {{ itemShop.itemData.PercentageStatsGiven[2] }}%{% endif %}<br />
+              {% endif %}
+              {% if(itemShop.itemData.StatsGiven[3] != 0) or (itemShop.itemData.PercentageStatsGiven[3] != 0) %}
+                +{{ lang['itemstats_stat_magres'] }} : {% if(itemShop.itemData.StatsGiven[3] != 0) %}{{ itemShop.itemData.StatsGiven[3] - itemShop.itemData.StatGrowth }} à {{ itemShop.itemData.StatsGiven[3] + itemShop.itemData.StatGrowth }}{% endif %} {% if(itemShop.itemData.PercentageStatsGiven[3] != 0) %}+ {{ itemShop.itemData.PercentageStatsGiven[3] }}%{% endif %}<br />
+              {% endif %}
+              {% if(itemShop.itemData.StatsGiven[4] != 0) or (itemShop.itemData.PercentageStatsGiven[4] != 0) %}
+                +{{ lang['itemstats_stat_spd'] }} : {% if(itemShop.itemData.StatsGiven[4] != 0) %}{{ itemShop.itemData.StatsGiven[4] - itemShop.itemData.StatGrowth }} à {{ itemShop.itemData.StatsGiven[4] + itemShop.itemData.StatGrowth }}{% endif %} {% if(itemShop.itemData.PercentageStatsGiven[4] != 0) %}+ {{ itemShop.itemData.PercentageStatsGiven[4] }}%{% endif %}<br />
+              {% endif %}
+            {% endif %}
+        {% endif %}
+        </p>
+
+        <div id="middle">
+        <h2>{{ lang['shop_select_character_title'] }}</h2>
+        <p>{{ lang['shop_balance_after_purchase'] }} : {{ session.points - itemShop.Price }} ({{ session.points }}-{{ itemShop.Price }}) {{ lang['points'] }}</p>
+        <p>{{ lang['shop_postpurchase_message'] }}</p>
+        <center>
+          <form method="post">
+            <select name="playerShop">
+              {% for player in playersAcc %}
+                  <option value="{{ player.Id }}">{{ player.Name }} ({{ lang['shop_select_character_level_tag'] }} {{ player.Level }})</option>
+              {% endfor %}
+            </select>
+            <br /><br />
+            <button style="padding: 15px 90px!important;" class="customBTN" type="sumbit">{{ lang['shop_buy_button']|upper }}</button>
+          </form>
+        </center>
+        </div>
+    </article>
+    <div class="clear"></div>
+</div>
+
+{% endblock %}

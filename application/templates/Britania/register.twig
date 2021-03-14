@@ -1,0 +1,37 @@
+{% extends "html.twig" %}
+
+{% block content %}
+<h1>{{ lang['register'] }}</h1>
+<ul id="breadcrump">
+  <li><a href="{{ url_for('home') }}">{{ lang['home'] }}</a></li>
+  <li>{{ lang['register'] }}</li>
+</ul>
+
+<div id="middle">
+    <h2>{{ lang['join_our_community'] }}</h2>
+    <p>
+    {{ lang['join_our_community_desc'] | raw }}
+    </p>
+
+    <h2>{{ lang['register_form_name'] }}</h2>
+    <form method="post" action="{{ url_for('register_complete') }}">
+        <label for="">
+            <span>*</span> {{ lang['register_account'] }} :
+        </label>
+        <input type="text" name="formAccount"/>
+        <label for="">
+            <span>*</span> {{ lang['register_password'] }} :
+        </label>
+        <input type="password" name="formPassword"/>
+        <label for="">
+            <span>*</span> {{ lang['register_password_confirm'] }} :
+        </label>
+        <input type="password" name="formPasswordConf"/>
+        <label for="">
+            <span>*</span> {{ lang['register_email'] }} :
+        </label>
+        <input type="text" name="formEmail"/>
+        <button style="padding: 15px 90px!important;" class="customBTN" id="customBTN" name="register_validation" type="sumbit">{{ lang['register_register_button'] }}</button>
+    </form>
+</div>
+{% endblock %}

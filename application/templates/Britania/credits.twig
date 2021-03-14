@@ -1,0 +1,20 @@
+{% extends "html.twig" %}
+
+{% block content %}
+<h1>{{ lang['buy_credits_title'] }}</h1>
+<ul id="breadcrump">
+  <li><a href="{{ url_for('home') }}">{{ lang['home'] }}</a></li>
+  <li>{{ lang['buy_credits_title'] }}</li>
+</ul>
+
+<div id="middle">
+    <h2>{{ lang['buy_credits_title'] }}</h2>
+    <p>
+        <div data-dedipass="{{ cms_settings.credit_dedipass_html_data }}" data-dedipass-custom=""></div>
+    </p>
+</div>
+{% endblock %}
+
+{% block footerjs %}
+<script src="//api.dedipass.com/v1/pay.js"></script>
+{% endblock %}

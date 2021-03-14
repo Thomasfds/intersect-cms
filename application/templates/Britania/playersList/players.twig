@@ -1,0 +1,56 @@
+{% extends "html.twig" %}
+
+{% block title %}
+	{{ pageTitle }}
+{% endblock %}
+
+{% block seo %}
+	<!-- Primary Meta Tags -->
+	<meta name="title" content="{{pageTitle}}">
+	<meta
+	name="description" content="DragonBallZ: Shukuteki, jeu retrancant l'histoire originale de l'animé en jeu MMORPG 2D, le jeu n'attend plus que vous !">
+
+	<!-- Open Graph / Facebook -->
+	<meta property="og:type" content="website">
+	<meta property="og:url" content="{{current_url}}">
+	<meta property="og:title" content="{{pageTitle}}">
+	<meta property="og:description" content="DragonBallZ: Shukuteki, jeu retrancant l'histoire originale de l'animé en jeu MMORPG 2D, le jeu n'attend plus que vous !">
+	<meta
+	property="og:image" content="{{ globalAssetsPath }}seo/seo.png">
+
+	<!-- Twitter -->
+	<meta property="twitter:card" content="summary_large_image">
+	<meta property="twitter:url" content="{{current_url}}">
+	<meta property="twitter:title" content="{{pageTitle}}">
+	<meta property="twitter:description" content="DragonBallZ: Shukuteki, jeu retrancant l'histoire originale de l'animé en jeu MMORPG 2D, le jeu n'attend plus que vous !">
+	<meta property="twitter:image" content="{{ globalAssetsPath }}seo/seo.png">
+{% endblock %}
+
+{% block content %}
+	<h1>{{ lang['playersList'] }}</h1>
+	<ul id="breadcrump">
+		<li>
+			<a href="{{ url_for('home') }}">{{ lang['home'] }}</a>
+		</li>
+		<li>{{ lang['playersList'] }}</li>
+	</ul>
+
+	<div id="middle">
+		<ul class="nav nav-tabs card-header-tabs mb-2">
+			<li class="nav-item">
+				<button id="all" class="nav-link active" aria-current="true" href="#!">Tout les joueurs</button>
+			</li>
+			<li class="nav-item">
+				<button id="online" class="nav-link" href="#!">Joueurs en ligne</button>
+			</li>
+		</ul>
+
+		<div id="content-page"></div>
+
+	</div>
+{% endblock %}
+
+{% block footerjs %}
+	<script type="text/javascript" src="{{ assetsPath }}js/players.min.js"></script>
+
+{% endblock %}

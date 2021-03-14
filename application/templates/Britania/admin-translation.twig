@@ -1,0 +1,24 @@
+{% extends "html.twig" %}
+
+{% block content %}
+<h1>Administration</h1>
+<ul id="breadcrump">
+  <li><a href="{{ url_for('home') }}">{{ lang['home'] }}</a></li>
+  <li><a href="{{ url_for('admin-home') }}">{{ lang['administration_title'] }}</a></li>
+  <li>{{ lang['administration_translate_title'] }}</li>
+</ul>
+
+<div id="middle">
+    <h2>{{ lang['administration_translate_title'] }}</h2>
+
+    <center>
+      <form method="post">
+      {% for string in strings %}
+          <label>{{ string.str_key }} :</label> <input name ="{{ string.str_key }}" type="text" placeholder="{{ string.text }}" value="{{ string.text }}"></input><br />
+      {% endfor %}
+      <br /><br />
+      <button style="padding: 15px 90px!important;" name="translationSend" class="customBTN" type="sumbit">{{ lang['button_submit_title'] }}</button>
+      </form>
+    </center>
+</div>
+{% endblock %}

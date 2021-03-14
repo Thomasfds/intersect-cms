@@ -1,0 +1,107 @@
+{% extends "html.twig" %}
+
+{% block content %}
+<h1>Administration</h1>
+<ul id="breadcrump">
+  <li><a href="{{ url_for('home') }}">{{ lang['home'] }}</a></li>
+  <li><a href="{{ url_for('admin-home') }}">{{ lang['administration_title'] }}</a></li>
+  <li>{{ lang['administration_shop_title'] }}</li>
+</ul>
+
+<div id="middle">
+  {% if newsEdit != null %}
+    <h2>{{ lang['administration_edit_shop_title'] }}</h2>
+  {% else %}
+    <h2>{{ lang['administration_add_shop_title'] }}</h2>
+  {% endif %}
+
+    <center>
+      <form method="post">
+      <img src="{{globalAssetsPath}}gamedata/items/{{ shopEdit.itemData.Icon }}" style="width: 50px;height: 50px;float: left;"></img>
+      <input name ="iName" type="text" placeholder="{{ lang['administration_shop_title_placeholder'] }}" value="{{ shopEdit.itemData.Name }}" disabled></input>
+      <input name ="iQuantity" type="text" placeholder="{{ lang['administration_shop_quantity_placeholder'] }}" onkeypress='return event.charCode >= 48 && event.charCode <= 57' value="{{ shopEdit.Quantity }}"></input>
+      <input name ="iId" type="text" placeholder="{{ lang['administration_shop_id_placeholder'] }}" value="{{ shopEdit.id_item }}"></input>
+      <input name ="iPrice" type="text" placeholder="{{ lang['administration_shop_price_placeholder'] }}" onkeypress='return event.charCode >= 48 && event.charCode <= 57' value="{{ shopEdit.Price }}"></input>
+      <input name ="iPromo" type="text" placeholder="{{ lang['administration_shop_promo_placeholder'] }}" value="{{ shopEdit.Promotion }}"></input>
+      <select name="iVisible">
+            <option value="1" {% if (shopEdit.Visible == 1) %}selected{% endif %}>{{ lang['administration_shop_visible_yes'] }}</option>
+            <option value="0" {% if (shopEdit.Visible == 0) %}selected{% endif %}>{{ lang['administration_shop_visible_no'] }}</option>
+      </select>
+      <textarea name ="iContent" placeholder="{{ shopEdit.baseDesc }}" style="height:200px;">{{ shopEdit.cDesc }}</textarea>
+      <br />
+      <button style="padding: 15px 90px!important;" class="customBTN" type="sumbit">{{ lang['button_submit_title'] }}</button>
+      </form>
+    </center>
+
+    <h2>{{ lang['administration_shop_list_title'] }}</h2>
+    <table class="ladder">
+        <thead>
+            <tr>
+                <th class="c">{{ lang['administration_shop_column_title'] }}</th>
+                <th class="c">{{ lang['administration_shop_column_description'] }}</th>
+                <th class="c">{{ lang['administration_shop_column_image'] }}</th>
+                <th class="c">{{ lang['administration_shop_column_price'] }}</th>
+                <th class="c">{{ lang['administration_shop_column_quantity'] }}</th>
+                <th class="c">{{ lang['administration_shop_column_promotion'] }}</th>
+                <th class="c">{{ lang['administration_shop_column_visible'] }}</th>
+                <th class="c">{{ lang['administration_shop_column_options'] }}</th>
+            </tr>
+        </thead>
+        <tbody>
+          {% for item in news %}
+          <tr>
+          <td class="c">{{ item.itemData.Name }}</td>
+          <td class="c">{{ item.Desc | raw }}</td>
+          <td class="c"><img src="{{globalAssetsPath}}gamedata/items/{{ item.itemData.Icon }}" style="width: 25px;height: 25px;"></img></td>
+          <td class="c">{{ item.Price }}</td>
+          <td class="c">{{ item.Quantity }}</td>
+          <td class="c">-{{ item.Promotion }}%</td>
+          <td class="c">{% if (item.Visible == 1) %} {{ lang['administration_shop_visible_yes'] }} {% else %} {{ lang['administration_shop_visible_no'] }} {% endif %}</td>
+          <td class="c"><a href="{{ url_for('admin-edit-shop', { 'id': item.id }) }}">{{ lang['administration_item_options_edit'] }}</a> - <a href="{{ url_for('admin-delete-shop', { 'id': item.id }) }}">{{ lang['administration_item_options_delete'] }}</a></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+</div>
+{% endblock %}
+
+{% block footerjs %}
+<script
+    type="text/javascript"
+    src='https://cdn.tiny.cloud/1/no-api-key/tinymce/5/tinymce.min.js'
+    referrerpolicy="origin">
+  </script>
+  <script type="text/javascript">
+  tinymce.init({
+    selector:'textarea',
+    language: '{{ lang['administration_tinymce_lang'] }}',
+    plugins: [
+      'advlist autolink link image imagetools lists charmap print preview hr anchor pagebreak spellchecker',
+      'searchreplace wordcount visualblocks visualchars code fullscreen insertdatetime media nonbreaking',
+      'table emoticons template paste help autoresize autosave'
+    ],
+    toolbar: 'undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | ' +
+      'bullist numlist outdent indent | link image | print preview media fullpage | ' +
+      'forecolor backcolor emoticons | restoredraft help',
+    menu: {
+      favs: {title: '{{ lang['administration_tinymce_fav'] }}', items: 'code visualaid | searchreplace | spellchecker | emoticons'}
+    },
+    a11y_advanced_options: true,
+    image_advtab: true,
+    image_title: true,
+    autoresize_bottom_margin: 50,
+    autosave_ask_before_unload: false,
+    style_formats: [
+      {title: 'Image Left', selector: 'img', styles: {
+        'float' : 'left',
+        'margin': '0 10px 0 10px'
+      }},
+      {title: 'Image Right', selector: 'img', styles: {
+        'float' : 'right',
+        'margin': '0 10px 0 10px'
+      }}
+    ],
+    menubar: 'favs file edit view insert format tools table help'
+  });
+  </script>
+{% endblock %}

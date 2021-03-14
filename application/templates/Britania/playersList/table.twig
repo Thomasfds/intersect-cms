@@ -1,0 +1,33 @@
+<table class="table ladder">
+	<thead>
+		<tr>
+			<th>{{ lang['leader_player_name'] }}</th>
+			<th class="c">{{ lang['leader_player_level'] }}</th>
+			<th class="r">{{ lang['leader_player_exp'] }}</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for player in joueurs %}
+			
+
+			<tr>
+				<td>{{ player.name }}</td>
+				<td class="c">{{ player.level }}</td>
+				<td class="r">
+					<b>{{ player.exp }}/{{player.expNext }}</b>
+				</td>
+			</tr>
+		{% endfor %}
+	</tbody>
+</table>
+
+
+<nav aria-label="Page navigation example">
+	<ul class="pagination">
+		{% for i in 0..max %}
+			<li class="page-item  {% if page_actuel == i %}active{% endif %}">
+				<a class="page-link">{{ i }}</a>
+			</li>
+		{% endfor %}
+	</ul>
+</nav>

@@ -1,0 +1,12 @@
+{% extends "html.twig" %}
+
+{% block content %}
+<h1>{{ pageTitle }}</h1>
+<ul id="breadcrump">
+  <li><a href="{{ url_for('home') }}">{{ lang['home'] }}</a></li>
+  <li>{{ pageTitle }}</li>
+</ul>
+<div id="middle">
+  <p>{{ content | raw }}</p>
+</div>
+{% endblock %}
