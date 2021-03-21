@@ -1,3 +1,6 @@
+Current version: 1.0
+Supporting the Creator: https://www.paypal.me/thomaaasfds
+
 # Intersect CMS Rework
 
 [![N|Solid](https://s3.us-east-2.amazonaws.com/ascensiongamedev/filehost/a4727b61d3221e25d4960d124f383986.png)](https://www.freemmorpgmaker.com/)
