@@ -628,7 +628,7 @@ class UserController extends AbstractTwigController
 
             if ($newspassword === "Password updated.") {
               R::exec(
-                'UPDATE cms_users SET password_token=? password=?  WHERE username = ?',
+                'UPDATE cms_users SET password_token=?, password=?  WHERE username = ?',
                 [
                   null,
                   password_hash($password,  PASSWORD_ARGON2I),

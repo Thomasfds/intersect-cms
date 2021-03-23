@@ -151,7 +151,7 @@ class AdminController extends AbstractTwigController
           if (!array_key_exists($extension, $allowed) || !in_array($filetype, $allowed)) {
             return $this->render($response, 'basic-page.twig', [
               'pageTitle' => $this->getLang()['page_error'],
-              'content' => $this->getLang()['shop_hdv_buy_error_message_any'],
+              'content' => $this->getLang()['any_error'],
               'redirection_url' => 'admin-home'
             ]);
           }
@@ -162,7 +162,7 @@ class AdminController extends AbstractTwigController
           if (!move_uploaded_file($_FILES['image']['tmp_name'], $newfilename)) {
             return $this->render($response, 'basic-page.twig', [
               'pageTitle' => $this->getLang()['page_error'],
-              'content' => $this->getLang()['shop_hdv_buy_error_message_any'],
+              'content' => $this->getLang()['any_error'],
               'redirection_url' => 'admin-home'
             ]);
           }
