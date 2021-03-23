@@ -1,69 +1,71 @@
 {% extends "html.twig" %}
 
 {% block title %}
-	{{ pageTitle }}
+{{ pageTitle }}
 {% endblock %}
 
 {% block seo %}
-	<!-- Primary Meta Tags -->
-	<meta name="title" content="{{pageTitle}}">
-	<meta
-	name="description" content="yourdescription">
+<!-- Primary Meta Tags -->
+<meta name="title" content="{{pageTitle}}">
+<meta name="description" content="{{cms_settings['seo_description']}}">
 
-	<!-- Open Graph / Facebook -->
-	<meta property="og:type" content="website">
-	<meta property="og:url" content="{{current_url}}">
-	<meta property="og:title" content="{{pageTitle}}">
-	<meta property="og:description" content="yourdescription">
-	<meta
-	property="og:image" content="{{ globalAssetsPath }}seo/seo.png">
+<!-- Open Graph / Facebook -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="{{current_url}}">
+<meta property="og:title" content="{{pageTitle}}">
+<meta property="og:description" content="{{cms_settings['seo_description']}}">
+<meta property="og:image" content="{{ globalAssetsPath }}seo/seo.png">
 
-	<!-- Twitter -->
-	<meta property="twitter:card" content="summary_large_image">
-	<meta property="twitter:url" content="{{current_url}}">
-	<meta property="twitter:title" content="{{pageTitle}}">
-	<meta property="twitter:description" content="yourdescription">
-	<meta property="twitter:image" content="{{ globalAssetsPath }}seo/seo.png">
+<!-- Twitter -->
+<meta property="twitter:card" content="summary_large_image">
+<meta property="twitter:url" content="{{current_url}}">
+<meta property="twitter:title" content="{{pageTitle}}">
+<meta property="twitter:description" content="{{cms_settings['seo_description']}}">
+<meta property="twitter:image" content="{{ globalAssetsPath }}seo/seo.png">
 {% endblock %}
 
 {% block content %}
-	<h1>{{ lang['leaders'] }}</h1>
-	<ul id="breadcrump">
-		<li>
-			<a href="{{ url_for('home') }}">{{ lang['home'] }}</a>
-		</li>
-		<li>{{ lang['leaders'] }}</li>
-	</ul>
+<h1>{{ lang['leaders'] }}</h1>
+<ul id="breadcrump">
+	<li>
+		<a href="{{ url_for('home') }}">{{ lang['home'] }}</a>
+	</li>
+	<li>{{ lang['leaders'] }}</li>
+</ul>
 
-	<div id="middle">
+<div id="middle">
 
-		<h2>{{ lang['leader_pve_title'] }}</h2>
-		<table class="ladder">
-			<thead>
-				<tr>
-					<th width="50px" class="c">#</th>
-					<th>{{ lang['leader_player_name'] }}</th>
-					<th class="c">{{ lang['leader_player_level'] }}</th>
-					<th class="r">{{ lang['leader_player_exp'] }}</th>
-				</tr>
-			</thead>
-			<tbody>
-				{% for player in players %}
-					{% set position = position + 1 %}
-					<tr>
-						<td class="c">
-							<span class="rang">{{ position }}</span>
-						</td>
-						<td>{{ player.name }}</td>
-						<td class="c">{{ player.level }}</td>
-						<td class="c">{{ player.exp }}/{{player.expNext}}</td>
-					</tr>
-                    {% else %}
-                        <div class="alert alert-info">
-                            Aucune information disponible.
-                        </div>
-				{% endfor %}
-			</tbody>
-		</table>
-	</div>
+	<h2>{{ lang['leader_pve_title'] }}</h2>
+	<table class="ladder">
+		<thead>
+			<tr>
+				<th width="50px" class="c">#</th>
+				<th>{{ lang['leader_player_name'] }}</th>
+				<th class="c">{{ lang['leader_player_level'] }}</th>
+				<th class="r">{{ lang['leader_player_exp'] }}</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for player in players %}
+			{% set position = position + 1 %}
+			<tr>
+				<td class="c">
+					<span class="rang">{{ position }}</span>
+				</td>
+				<td>{{ player.name }}</td>
+				<td class="c">{{ player.level }}</td>
+				<td class="c">{{ player.exp }}/{{player.expNext}}</td>
+			</tr>
+			{% else %}
+			<div class="alert alert-info">
+				Aucune information disponible.
+			</div>
+			{% endfor %}
+		</tbody>
+	</table>
+	<p>
+		Dernière mise à jour du classement le :
+		{{cacheDate|date('d/m/Y à H:i:s')}}
+	</p>
+</div>
 {% endblock %}
