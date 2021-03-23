@@ -38,6 +38,18 @@ $rootPath = realpath(__DIR__ . '/..');
 // Include the composer autoloader.
 include_once($rootPath . '/vendor/autoload.php');
 
+
+function setCookies($name, $value)
+{
+  setcookie($name, $value);
+}
+
+function getCookie($name)
+{
+  return $_COOKIE[$name];
+}
+
+
 // Create the container for dependency injection.
 try {
   $container = ContainerFactory::create($rootPath);
@@ -118,7 +130,6 @@ $app->group('/', function (RouteCollectorProxy $group) {
   $group->get('user/register', UserController::class . ':register')->setName('register');
   $group->post('user/register_complete', UserController::class . ':register_complete')->setName('register_complete');
   $group->get('user/my_account', UserController::class . ':my_account')->setName('my_account');
-  $group->post('user/login', UserController::class . ':login')->setName('login');
   $group->get('user/logout', UserController::class . ':logout')->setName('logout');
   $group->get('game/leader', GameController::class . ':leader')->setName('leader');
   $group->get('shop/list', ShopController::class . ':list')->setName('shop-list');
@@ -127,6 +138,26 @@ $app->group('/', function (RouteCollectorProxy $group) {
   $group->post('shop/detail/{id}', ShopController::class . ':detail');
   $group->get('user/credits', UserController::class . ':buyPoints')->setName('user-buy-credits');
   $group->post('user/credits', UserController::class . ':buyPoints');
+
+  /**
+   * Changement de langue
+   */
+  $group->get('changeLocal/{lang}[/]', HomeController::class . ':changeLocal')->setName('changeLocal');
+
+  /**
+   * Page de connexion
+   */
+
+  $group->any('user/login[/]', UserController::class . ':login')->setName('login');
+
+  /**
+   * Réinitialisation du mot de passe
+   */
+  $group->get('password-reset[/]', UserController::class . ':passwordResetRequest')->setName('passwordResetRequest');
+  $group->post('password-reset[/]', UserController::class . ':passwordResetRequest')->setName('passwordResetRequest');
+
+  $group->get('password-reset/new/{token}[/]', UserController::class . ':passwordResetRequestReset')->setName('resetPassword');
+  $group->post('password-reset/new/{token}[/]', UserController::class . ':passwordResetRequestReset')->setName('resetPassword');
 
   //Admin pages
   $group->get('admin/home', AdminController::class . ':home')->setName('admin-home');
@@ -167,10 +198,41 @@ if ($cms_settings['use_wiki']) {
     [':cat' => 'wiki']
   );
 }
-$lang = R::getAll(
-  'SELECT * FROM cms_lang WHERE language = :lang',
-  [':lang' => $cms_settings['current_lang']]
-);
+
+
+if (!isset($_SESSION['language']) && !isset($_COOKIE['language'])) {
+  $default_language = "fr";
+  $time = time() + 6 * 30 * 24 * 3600;
+}
+
+if (isset($_SESSION['user_Id'])) {
+  if (isset($_SESSION['language'])) {
+    $lang = R::getAll(
+      'SELECT * FROM cms_lang WHERE language = :lang',
+      [':lang' => $_SESSION['language']]
+    );
+  } else {
+    $lang = R::getAll(
+      'SELECT * FROM cms_lang WHERE language = :lang',
+      [':lang' => 'fr']
+    );
+  }
+} else {
+  if (isset($_COOKIE['language'])) {
+    $default_language = $_COOKIE['language'];
+    $lang = R::getAll(
+      'SELECT * FROM cms_lang WHERE language = :lang',
+      [':lang' => $default_language]
+    );
+  } else {
+    setCookie('language', 'fr', $time, '/', "", false, true);
+    $lang = R::getAll(
+      'SELECT * FROM cms_lang WHERE language = :lang',
+      [':lang' => $default_language]
+    );
+  }
+}
+
 $lang_array = array();
 foreach ($lang as $translate) {
   $lang_array[$translate['str_key']] = $translate['text'];

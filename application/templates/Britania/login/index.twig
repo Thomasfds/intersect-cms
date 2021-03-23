@@ -1,0 +1,62 @@
+{% extends "html.twig" %}
+{% block title %}{{ lang['login_to_site'] }}{% endblock %}
+{% block seo %}
+<!-- Primary Meta Tags -->
+<meta name="title" content="{{ lang['login_to_site'] }} - {{ lang['game_title'] }} | {{ lang['game_min_desc'] }}">
+<meta name="description" content="{{cms_settings['seo_description']}}">
+
+<!-- Open Graph / Facebook -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="{{current_url}}">
+<meta property="og:title" content="{{ lang['game_title'] }} | {{ lang['game_min_desc'] }}">
+<meta property="og:description" content="{{cms_settings['seo_description']}}">
+<meta property="og:image" content="{{ globalAssetsPath }}seo/seo.png">
+
+<!-- Twitter -->
+<meta property="twitter:card" content="summary_large_image">
+<meta property="twitter:url" content="{{current_url}}">
+<meta property="twitter:title" content="{{ lang['game_title'] }} | {{ lang['game_min_desc'] }}">
+<meta property="twitter:description" content="{{cms_settings['seo_description']}}">
+<meta property="twitter:image" content="{{ globalAssetsPath }}seo/seo.png">
+{% endblock %}
+
+{% block content %}
+<h1>
+	<div class="ico_lock"></div>
+	{{ lang['login_to_site'] }}
+</h1>
+<ul id="breadcrump">
+	<li>
+		<a href="{{ url_for('home') }}">{{ lang['home'] }}</a>
+	</li>
+	<li>{{ lang['login_to_site'] }}</li>
+</ul>
+
+<div id="middle">
+	<form method="POST" action="{{ url_for('login') }}">
+		<div class="form-group">
+			<label for="formuser">
+				<span>*</span>
+				{{ lang['login_account'] }}
+				:
+			</label>
+			<input type="text" name="formuser" value="" class="w-100">
+		</div>
+		<div class="form-group">
+			<label for="formpass">
+				<span>*</span>
+				{{ lang['login_password'] }}
+				:
+			</label>
+			<input type="password" name="formpass" value="" class="w-100">
+		</div>
+
+
+		<button name="connection" type="sumbit" class="customBTN w-100" id="customBTN">{{ lang['login_log_me']
+			}}</button>
+		<p>
+			<a href="{{ url_for('passwordResetRequest') }}">{{ lang['login_password_reset'] }}</a>
+		</p>
+	</form>
+</div>
+{% endblock %}

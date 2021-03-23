@@ -1,64 +1,87 @@
 /*
 ======================================================================================
-	||
+    ||
     * interface.home.js
     * Code by Nicow 2017
     * www.wbxdsg.com
+    ||
+
+    || REWORK VERSION BASED ON ORIGINAL
+    * interface.js
+    * Code by Thomasfds 2021
+    * www.thomasfds.fr
 	||
 ======================================================================================
 */
 
-$(window).on('load', function(){
-      
+window.onload = () => {
+
+    let sub = document.querySelectorAll('.sub');
+    let button_menu = document.querySelector('[data-nav]');
+
     /****** ARMURERIE *****/
+    if (document.querySelector('[data-item-id]') != null) {
+        document.querySelector('[data-item-id]').addEventListener('click', function () {
+            var id = document.querySelector(this).data('item-id');
 
-        $('[data-item-id]').on('click', function(){
-            var id = $(this).data('item-id');
+            document.querySelector('[data-item-id]').removeClass('active');
+            document.querySelector(this).classList.add('active');
 
-            $('[data-item-id]').removeClass('active');
-            $(this).addClass('active');
-
-            $('[data-look-id]').hide();
-            $('[data-look-id="'+ id +'"]').show();
+            document.querySelector('[data-look-id]').hide();
+            document.querySelector('[data-look-id="' + id + '"]').show();
 
         });
+    }
 
     /****** NAV *****/
 
-        $('.sub').on('mouseenter', function(){
-            var menu = $(this).children('ul'),
-                nbr = menu.children('li').length,
-                h = nbr*42+7;
-                menu.stop().animate({
-                    'height': h,
-                }, 300);
-        });
-        $('.sub').on('mouseleave', function(){
-            var menu = $(this).children('ul');
-                menu.stop().animate({
-                    'height': 0,
-                }, 300);
-        });
-        $('[data-nav]').on('click', function(){
-            var a = $(this).data('nav');
+    if (sub != null) {
+        sub.forEach(subs => {
+            subs.addEventListener('mouseenter', (e) => {
+                let menu = e.target.children[1];
+                let nbr = menu.children.length;
+                let h = nbr * 42 + 7;
+                animate(menu, "height", h + 'px', 200);
+            });
 
-                if(a == 'no'){
-                    $('nav').stop().animate({
-                        'left': 0,
-                    },300);
-                    $(this).data('nav', 'yes');
-                }else{
-                    $('nav').stop().animate({
-                        'left': -200,
-                    },150);
-                    $(this).data('nav', 'no');
-                }
-
-        });
-
-    
-});
+            subs.addEventListener('mouseleave', (e) => {
+                let menu = e.target.children[1];
+                animate(menu, "height", '0px', 200);
+            })
+        })
+    }
 
 
+    function animate(node, prop, end, duration) {
+        var stepTime = 20;
+        var startTime = new Date().getTime();
+        var start = parseInt(getComputedStyle(node).getPropertyValue(prop), 10);
+        if (typeof end === "string") {
+            end = parseInt(end, 10);
+        }
 
-
+        function step() {
+            // calc how much time has elapsed
+            var nextValue, done, portionComplete;
+            var timeRunning = new Date().getTime() - startTime;
+            if (timeRunning >= duration) {
+                nextValue = end;
+                done = true;
+            } else {
+                portionComplete = timeRunning / duration;
+                nextValue = ((end - start) * portionComplete) + start;
+                done = false;
+            }
+            // set the next value
+            node.style[prop] = nextValue + "px";
+            if (!done) {
+                setTimeout(step, stepTime);
+            } else {
+                // context = context || window;
+                // fn.call(context, node, arg);
+            }
+        }
+        // start the animation
+        step();
+    }
+}

@@ -136,118 +136,225 @@ class UserController extends AbstractTwigController
    */
   public function login(Request $request, Response $response, array $args = []): Response
   {
-    $token = R::getAll('SELECT * FROM cms_settings WHERE setting ="api_token"')[0]['default_value'];
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    if (!isset($_POST['formuser']) || !isset($_POST['formpass'])) {
-      return $this->render($response, 'basic-page.twig', [
-        'pageTitle' => "Login Error",
-        'content' => "You must fill all the forms. Please try again.",
-      ]);
-    }
+      $token = R::getAll('SELECT * FROM cms_settings WHERE setting ="api_token"')[0]['default_value'];
 
-    // die($this->preferences->getApiToken());
-    if ($token == null) {
-      return $this->render($response, 'basic-page.twig', [
-        'pageTitle' => "API Error",
-        'content' => "Server did not receive a response...<br>check your ports, ip, settings,...Server\\resources\config\api.config.json should have the correct ip's and hosts set up.",
-      ]);
-    } else {
-      $userData = array(
-        'username' => $_POST['formuser'],
-        'password' => hash('sha256', $_POST['formpass'])
-      );
+      if (!isset($_POST['formuser']) || !isset($_POST['formpass'])) {
+        return $this->render($response, 'basic-page.twig', [
+          'pageTitle' => "Login Error",
+          'content' => "You must fill all the forms. Please try again.",
+        ]);
+      } else {
+        // On recherche si l'utilisateur existe en base de donnée
+        $userLogin = R::findOne('cms_users', 'username = ?', [$_POST['formuser']]);
 
-      $register = $this->preferences->APIcall_POST($this->preferences->getApiServer(), $userData, $token, '/api/v1/users/' . $userData['username'] . '/password/validate');
-      // die(var_dump($register));
+        // Si l'utilisateur existe alors 
+        if ($userLogin) {
+          // On vérifie si le mot de passe est correcte
+          if (password_verify($_POST['formpass'], $userLogin['password'])) {
+            // si le mot de passe est connecte alors on recherche les personnages de l'utilisateur on set les sessions et on renvoit sur l'accueil
 
-      if (isset($register['Message']) && $register['Message'] == "Authorization has been denied for this request.") {
-        $loginAPI = $this->preferences->APIcall_POST($this->preferences->getApiServer(), $this->preferences->getApiData(), "", '/api/oauth/token');
+            $players = $this->preferences->APIcall_GET($this->preferences->getApiServer(), $token, '/api/v1/users/' . $userLogin['id'] . '/players');
 
-        // die(var_dump($loginAPI['access_token']));
-        R::exec(
-          'UPDATE cms_settings SET default_value=? WHERE setting ="api_token"',
-          [
-            $loginAPI['access_token']
-          ]
-        );
-
-        $token = R::getAll('SELECT * FROM cms_settings WHERE setting ="api_token"')[0]['default_value'];
-
-        if (isset($register['Message'])) {
-          if ($register['Message'] == "Password Correct") {
-            $user_infos = $this->preferences->APIcall_GET($this->preferences->getApiServer(), $token, '/api/v1/users/' . $userData['username']);
-            die(var_dump($user_infos));
-
-            $userLogin = R::findOne('cms_users', 'id = ?', [$user_infos['Id']]);
-            if (empty($userLogin) && count($userLogin) == 0) {
-              R::exec(
-                'INSERT INTO cms_users (id, email, points, admin) VALUES (?,?,0,0)',
-                [
-                  $user_infos['Id'],
-                  $user_infos['Email']
-                ]
-              );
-              $userLogin = R::findOne('cms_users', 'id = ?', [$user_infos['Id']]);
-            }
-            $_SESSION['user_Id'] = $user_infos['Id'];
-            $_SESSION['user_Name'] = $user_infos['Name'];
+            $_SESSION['user_Id'] = $userLogin['id'];
+            $_SESSION['user_Name'] = $userLogin['username'];
             if ($userLogin['admin'] >= 1) :
               $_SESSION['isAdmin'] = $userLogin['admin'];
             endif;
             $_SESSION['points'] = $userLogin['points'];
+            $_SESSION['characters'] = $players;
+
+            if (isset($_COOKIE['language'])) {
+              $_SESSION['language'] = $_COOKIE['language'];
+            }
 
             return $response->withHeader('Location', $this->preferences->getBaseURL());
+          }
+        }
+
+        if ($token == null) {
+          return $this->render($response, 'basic-page.twig', [
+            'pageTitle' => "API Error",
+            'content' => "Server did not receive a response...<br>check your ports, ip, settings,...Server\\resources\config\api.config.json should have the correct ip's and hosts set up.",
+          ]);
+        } else {
+          $userData = array(
+            'username' => $_POST['formuser'],
+            'password' => hash('sha256', $_POST['formpass'])
+          );
+
+          $register = $this->preferences->APIcall_POST($this->preferences->getApiServer(), $userData, $token, '/api/v1/users/' . $userData['username'] . '/password/validate');
+
+          if (isset($register['Message']) && $register['Message'] == "Authorization has been denied for this request.") {
+            $loginAPI = $this->preferences->APIcall_POST($this->preferences->getApiServer(), $this->preferences->getApiData(), "", '/api/oauth/token');
+
+            // die(var_dump($register));
+            R::exec(
+              'UPDATE cms_settings SET default_value=? WHERE setting ="api_token"',
+              [
+                $loginAPI['access_token']
+              ]
+            );
+
+            $token = R::getAll('SELECT * FROM cms_settings WHERE setting ="api_token"')[0]['default_value'];
+
+            if (isset($register['Message'])) {
+              if ($register['Message'] == "Password Correct") {
+                $user_infos = $this->preferences->APIcall_GET($this->preferences->getApiServer(), $token, '/api/v1/users/' . $userData['username']);
+                // die(var_dump($user_infos));
+
+                $userLogin = R::findOne('cms_users', 'id = ?', [$user_infos['Id']]);
+                if (empty($userLogin) && count($userLogin) == 0 || is_null($userLogin)) {
+                  R::exec(
+                    'INSERT INTO cms_users (id, email, username, points, admin) VALUES (?,?,?,0,0)',
+                    [
+                      $user_infos['Id'],
+                      $user_infos['Email'],
+                      $user_infos['Name']
+                    ]
+                  );
+                  $userLogin = R::findOne('cms_users', 'id = ?', [$user_infos['Id']]);
+                }
+
+                if ($userLogin) {
+
+                  if ($userLogin['username'] == null || $userLogin['username'] == "") {
+                    R::exec(
+                      'UPDATE cms_users SET username=?  WHERE id = ?',
+                      [
+                        $user_infos['Name'],
+                        $user_infos['Id']
+                      ]
+                    );
+                    $userLogin = R::findOne('cms_users', 'id = ?', [$user_infos['Id']]);
+                  }
+
+
+
+                  if ($userLogin['password'] == null || $userLogin['password'] == "") {
+                    R::exec(
+                      'UPDATE cms_users SET password=?  WHERE id = ?',
+                      [
+                        password_hash($_POST['formpass'],  PASSWORD_ARGON2I),
+                        $user_infos['Id']
+                      ]
+                    );
+                    $userLogin = R::findOne('cms_users', 'id = ?', [$user_infos['Id']]);
+                  }
+                }
+
+                $players = $this->preferences->APIcall_GET($this->preferences->getApiServer(), $token, '/api/v1/users/' . $userLogin['id'] . '/players');
+
+                $_SESSION['user_Id'] = $userLogin['id'];
+                $_SESSION['user_Name'] = $userLogin['username'];
+                if ($userLogin['admin'] >= 1) :
+                  $_SESSION['isAdmin'] = $userLogin['admin'];
+                endif;
+                $_SESSION['points'] = $userLogin['points'];
+                $_SESSION['game_money'] = $userLogin['game_money'];
+
+                $_SESSION['characters'] = $players;
+
+                if (isset($_COOKIE['language'])) {
+                  $_SESSION['language'] = $_COOKIE['language'];
+                }
+
+                return $response->withHeader('Location', $this->preferences->getBaseURL());
+              } else {
+                return $this->render($response, 'basic-page.twig', [
+                  'pageTitle' => "Error",
+                  'content' => $register['Message'],
+                ]);
+              }
+            } else {
+              return $this->render($response, 'basic-page.twig', [
+                'pageTitle' => "Error",
+                'content' => "Erreur de connexion, veuillez réessayer.",
+              ]);
+            }
+          }
+
+          if (isset($register['Message'])) {
+            if ($register['Message'] == "Password Correct") {
+              // die($token);
+
+              $user_infos = $this->preferences->APIcall_GET($this->preferences->getApiServer(), $token, '/api/v1/users/' . $userData['username']);
+              // die(var_dump($user_infos));
+
+
+              $userLogin = R::findOne('cms_users', 'id = ?', [$user_infos['Id']]);
+              // die(var_dump($userLogin));
+
+              if (empty($userLogin) && count($userLogin) == 0 || is_null($userLogin)) {
+                // die(var_dump('ici'));
+
+                R::exec(
+                  'INSERT INTO cms_users (id, email, username, points, admin) VALUES (?,?,?,0,0)',
+                  [
+                    $user_infos['Id'],
+                    $user_infos['Email'],
+                    $user_infos['Name']
+                  ]
+                );
+
+                $userLogin = R::findOne('cms_users', 'id = ?', [$user_infos['Id']]);
+              }
+
+              if ($userLogin) {
+
+                if ($userLogin['username'] == null || $userLogin['username'] == "") {
+                  R::exec(
+                    'UPDATE cms_users SET username=?  WHERE id = ?',
+                    [
+                      $user_infos['Name'],
+                      $user_infos['Id']
+                    ]
+                  );
+                  $userLogin = R::findOne('cms_users', 'id = ?', [$user_infos['Id']]);
+                }
+
+                if ($userLogin['password'] == null || $userLogin['password'] == "") {
+                  R::exec(
+                    'UPDATE cms_users SET password=?  WHERE id = ?',
+                    [
+                      password_hash($_POST['formpass'],  PASSWORD_ARGON2I),
+                      $user_infos['Id']
+                    ]
+                  );
+                  $userLogin = R::findOne('cms_users', 'id = ?', [$user_infos['Id']]);
+                }
+              }
+
+              $players = $this->preferences->APIcall_GET($this->preferences->getApiServer(), $token, '/api/v1/users/' . $userLogin['id'] . '/players');
+
+              $_SESSION['user_Id'] = $userLogin['id'];
+              $_SESSION['user_Name'] = $userLogin['username'];
+              if ($userLogin['admin'] >= 1) :
+                $_SESSION['isAdmin'] = $userLogin['admin'];
+              endif;
+              $_SESSION['points'] = $userLogin['points'];
+              $_SESSION['characters'] = $players;
+
+              return $response->withHeader('Location', $this->preferences->getBaseURL());
+            } else {
+              return $this->render($response, 'basic-page.twig', [
+                'pageTitle' => "Error",
+                'content' => $register['Message'],
+              ]);
+            }
           } else {
             return $this->render($response, 'basic-page.twig', [
               'pageTitle' => "Error",
-              'content' => $register['Message'],
+              'content' => "Erreur de connexion, veuillez réessayer.",
             ]);
           }
-        } else {
-          return $this->render($response, 'basic-page.twig', [
-            'pageTitle' => "Error",
-            'content' => "Erreur de connexion, veuillez réessayer.",
-          ]);
         }
       }
-
-      if (isset($register['Message'])) {
-        if ($register['Message'] == "Password Correct") {
-          // die($token);
-
-          $user_infos = $this->preferences->APIcall_GET($this->preferences->getApiServer(), $token, '/api/v1/users/' . $userData['username']);
-
-          $userLogin = R::findOne('cms_users', 'id = ?', [$user_infos['Id']]);
-          if (empty($userLogin) && count($userLogin) == 0) {
-            R::exec(
-              'INSERT INTO cms_users (id, email, points, admin) VALUES (?,?,0,0)',
-              [
-                $user_infos['Id'],
-                $user_infos['Email']
-              ]
-            );
-            $userLogin = R::findOne('cms_users', 'id = ?', [$user_infos['Id']]);
-          }
-          $_SESSION['user_Id'] = $user_infos['Id'];
-          $_SESSION['user_Name'] = $user_infos['Name'];
-          if ($userLogin['admin'] >= 1) :
-            $_SESSION['isAdmin'] = $userLogin['admin'];
-          endif;
-          $_SESSION['points'] = $userLogin['points'];
-
-          return $response->withHeader('Location', $this->preferences->getBaseURL());
-        } else {
-          return $this->render($response, 'basic-page.twig', [
-            'pageTitle' => "Error",
-            'content' => $register['Message'],
-          ]);
-        }
-      } else {
-        return $this->render($response, 'basic-page.twig', [
-          'pageTitle' => "Error",
-          'content' => "Erreur de connexion, veuillez réessayer.",
-        ]);
-      }
+    } else {
+      return $this->render($response, 'login/index.twig', [
+        'pageTitle' => "Page de connexion",
+      ]);
     }
   }
 
@@ -384,5 +491,177 @@ class UserController extends AbstractTwigController
       }
     }
     return $this->render($response, 'credits.twig');
+  }
+
+    /**
+   * @param Request  $request
+   * @param Response $response
+   * @param array    $args
+   *
+   * @return Response
+   */
+  public function passwordResetRequest(Request $request, Response $response, array $args = []): Response
+  {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+      $username = $_POST['username'];
+      $email = $_POST['email'];
+
+      // Si username et email sont disponible et non vide
+      if (isset($username) && !empty($username) && isset($email) && !empty($email)) {
+        // Alors on vérifie si l'utilisateur existe en base de donnée
+        $userWeb = R::findOne('cms_users', 'username = ? and email = ?', [
+          $username,
+          $email
+        ]);
+
+
+        // Si l'utilisateur est existe bien et que le mail est bien identique au compte
+        if ($userWeb && $userWeb['email'] === $email) {
+          // Alors on ajoute le token de reset en db et on envoit un email
+          $token = bin2hex(random_bytes(12));
+          R::exec(
+            'UPDATE cms_users SET password_token=?  WHERE username = ?',
+            [
+              $token,
+              $username
+            ]
+          );
+
+          $url = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]/password-reset/new/" . $token;
+
+          if ($this->preferences->passwordEmail($userWeb['email'], $url)) {
+            return $this->render($response, 'password-reset/index.twig', [
+              'pageTitle' => "Mot de passe oublié",
+              'content' => "Un lien de réinitialisation vous à été envoyer par email.",
+            ]);
+          }
+        } else {
+          // /api/v1/users/[lookupKey]
+          $token = R::getAll('SELECT * FROM cms_settings WHERE setting ="api_token"')[0]['default_value'];
+          $userIntersect = $this->preferences->APIcall_GET($this->preferences->getApiServer(), $token, '/api/v1/users/' . $username);
+
+          if ($userIntersect) {
+            R::exec(
+              'INSERT INTO cms_users (id, email,username, points, admin) VALUES (?,?,?,0,0)',
+              [
+                $userIntersect['Id'],
+                $userIntersect['Email'],
+                $userIntersect['Name']
+              ]
+            );
+            $userWeb = R::findOne('cms_users', 'id = ?', [$userIntersect['Id']]);
+
+            if ($userWeb && $userWeb['email'] === $email) {
+              $token = bin2hex(random_bytes(12));
+              R::exec(
+                'UPDATE cms_users SET password_token=?  WHERE username = ?',
+                [
+                  $token,
+                  $username
+                ]
+              );
+
+              $url = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]/password-reset/new/" . $token;
+
+              if ($this->preferences->passwordEmail($userWeb['email'], $url)) {
+                return $this->render($response, 'password-reset/index.twig', [
+                  'pageTitle' => "Mot de passe oublié",
+                  'content' => "Un lien de réinitialisation vous à été envoyer par email.",
+                ]);
+              }
+            } else {
+              return $this->render($response, 'basic-page.twig', [
+                'pageTitle' => "Error",
+                'content' => "Erreur s'est produit, veuillez réessayer.",
+              ]);
+            }
+          }
+        }
+      }
+    }
+
+    return $this->render($response, 'password-reset/index.twig', [
+      'pageTitle' => "Mot de passe oublié",
+    ]);
+  }
+
+  /**
+   * @param Request  $request
+   * @param Response $response
+   * @param array    $args
+   *
+   * @return Response
+   */
+  public function passwordResetRequestReset(Request $request, Response $response, array $args = []): Response
+  {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+      $username = $_POST['username'];
+      $email = $_POST['email'];
+      $password = $_POST['password'];
+      $passwordConfirm = $_POST['passwordConfirm'];
+
+      if (
+        isset($username) && !empty($username) &&
+        isset($email) && !empty($email) &&
+        isset($password) && !empty($password) &&
+        isset($passwordConfirm) && !empty($passwordConfirm)
+      ) {
+
+        if ($password === $passwordConfirm) {
+
+          // /api/v1/users/[lookupKey]/manage/password/change
+          $userWeb = R::findOne('cms_users', 'password_token = ? AND username = ?', [
+            $args['token'],
+            $username
+          ]);
+          // die(var_dump($userWeb));
+
+          if ($userWeb && $userWeb['email'] === $email) {
+            // die(var_dump($userWeb));
+            $token = R::getAll('SELECT * FROM cms_settings WHERE setting ="api_token"')[0]['default_value'];
+            // die(var_dump($token));
+
+            $data = ['new' => hash('sha256', $password)];
+
+            $newspassword = $this->preferences->APIcall_POST($this->preferences->getApiServer(), $data, $token, '/api/v1/users/' . $userWeb['username'] . '/manage/password/change');
+            // die(var_dump($newspassword));
+
+            if ($newspassword === "Password updated.") {
+              R::exec(
+                'UPDATE cms_users SET password_token=? password=?  WHERE username = ?',
+                [
+                  null,
+                  password_hash($password,  PASSWORD_ARGON2I),
+                  $username
+                ]
+              );
+              return $this->render($response, 'password-reset/reset.twig', [
+                'pageTitle' => "Mot de passe oublié",
+                'content' => 'Votre mot de passe à bien été modifier.'
+              ]);
+            }
+          }
+        } else {
+          return $this->render($response, 'password-reset/reset.twig', [
+            'pageTitle' => "Mot de passe oublié",
+            'content' => 'Vos mot de passe ne correspondent pas.'
+          ]);
+        }
+      }
+    }
+    $userWeb = R::findOne('cms_users', 'password_token = ?', [
+      $args['token']
+    ]);
+
+    if ($userWeb) {
+      return $this->render($response, 'password-reset/reset.twig', [
+        'pageTitle' => "Mot de passe oublié",
+      ]);
+    } else {
+      return $this->render($response, 'password-reset/reset.twig', [
+        'pageTitle' => "Mot de passe oublié",
+        'content' => 'Le token est invalide.'
+      ]);
+    }
   }
 }

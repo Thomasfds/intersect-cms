@@ -29,7 +29,7 @@ class AdminController extends AbstractTwigController
     $this->preferences = $preferences;
   }
 
-  // NEWS
+ // NEWS
   /**
    * @param Request  $request
    * @param Response $response
@@ -45,30 +45,68 @@ class AdminController extends AbstractTwigController
     if (!isset($_SESSION['isAdmin']) || $_SESSION['isAdmin'] < 1) { // Moar admin verif plz
       return $response->withHeader('Location', $this->preferences->getBaseURL());
     }
-    if (isset($_POST['nTitle']) && isset($_POST['nContent'])) {
-      //$TryContent = $_POST['nContent'];
-      //$_POST  = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
-      R::exec(
-        'INSERT INTO cms_news (title, content, author, img_url, date) VALUES (?,?,?,?,NOW())',
-        [
-          $_POST['nTitle'],
-          $_POST['nContent'],
-          $_SESSION['user_Name'],
-          $_POST['nImg']
-        ]
-      );
-      $nId = R::getInsertID();
-      return $response->withHeader('Location', $this->preferences->getBaseURL() . 'admin/news/edit/' . $nId);
+
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+      if (
+        isset($_POST['nTitle']) && !empty($_POST['nTitle'])  &&
+        isset($_POST['nContent']) && !empty($_POST['nContent']) &&
+        isset($_FILES['image']) && !empty($_FILES['image'])
+      ) {
+
+        $allowed = [
+          'jpg' => "image/jpeg",
+          'jpeg' => "image/jpeg",
+          'png' => 'image/png'
+        ];
+
+        $filename = $_FILES['image']['name'];
+        $filetype = $_FILES['image']['type'];
+        $filesize = $_FILES['image']['size'];
+
+        $extension = pathinfo($filename, PATHINFO_EXTENSION);
+
+        if (!array_key_exists($extension, $allowed) || !in_array($filetype, $allowed)) {
+          return $this->render($response, 'basic-page.twig', [
+            'pageTitle' => $this->getLang()['page_error'],
+            'content' => $this->getLang()['shop_hdv_buy_error_message_any'],
+            'redirection_url' => 'admin-home'
+          ]);
+        }
+
+        $newname = md5(uniqid());
+        $newfilename = $this->preferences->getRootPath() . "/public/assets/general/news/$newname.$extension";
+        // $this->dd($this->preferences->getRootPath());
+
+        if (!move_uploaded_file($_FILES['image']['tmp_name'], $newfilename)) {
+          return $this->render($response, 'basic-page.twig', [
+            'pageTitle' => $this->getLang()['page_error'],
+            'content' => $this->getLang()['shop_hdv_buy_error_message_any'],
+            'redirection_url' => 'admin-home'
+          ]);
+        }
+
+
+        R::exec(
+          'INSERT INTO cms_news (title, content, author, img_url, date) VALUES (?,?,?,?,NOW())',
+          [
+            $_POST['nTitle'],
+            $_POST['nContent'],
+            $_SESSION['user_Name'],
+            $newname . '.' . $extension
+          ]
+        );
+        $nId = R::getInsertID();
+        return $response->withHeader('Location', $this->preferences->getBaseURL() . 'admin/news/edit/' . $nId);
+      }
     }
+
     //$news = R::load( 'news', 1 );
     $newsList = R::getAll('SELECT * FROM cms_news');
-
-    $imgs = scandir($this->preferences->getRootPath() . '\public\assets\general\news');
 
     return $this->render($response, 'admin-news.twig', [
       'pageTitle' => "Actualités",
       'news' => $newsList,
-      'imgList' => $imgs
     ]);
   }
 
@@ -87,30 +125,78 @@ class AdminController extends AbstractTwigController
     if (!isset($_SESSION['isAdmin']) || $_SESSION['isAdmin'] < 1) { // Moar admin verif plz
       return $response->withHeader('Location', $this->preferences->getBaseURL());
     }
-    if (isset($_POST['nTitle']) && isset($_POST['nContent'])) {
-      //$TryContent = $_POST['nContent'];
-      //$_POST  = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
-      R::exec(
-        'UPDATE cms_news SET title=?, content=?, author=?, img_url=? WHERE id = ?',
-        [
-          $_POST['nTitle'],
-          $_POST['nContent'],
-          $_SESSION['user_Name'],
-          $_POST['nImg'],
-          $args['id']
-        ]
-      );
-    }
 
     $newsEdit = R::findOne('cms_news', 'id = ?', [$args['id']]);
-    $newsList = R::getAll('SELECT * FROM cms_news');
-    $imgs = scandir($this->preferences->getRootPath() . '\public\assets\general\news');
+
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+      if (isset($_POST['nTitle']) && !empty($_POST['nTitle']) &&  isset($_POST['nContent']) && !empty($_POST['nContent'])) {
+
+        if (isset($_FILES['image']) && !empty($_FILES['image']) && $_FILES['image']['error'] != 4) {
+
+          if (file_exists($this->preferences->getRootPath() . "/public/assets/general/news/" . $newsEdit['img_url'])) {
+            unlink($this->preferences->getRootPath() . "/public/assets/general/news/" . $newsEdit['img_url']);
+          }
+
+          $allowed = [
+            'jpg' => "image/jpeg",
+            'jpeg' => "image/jpeg",
+            'png' => 'image/png'
+          ];
+
+          $filename = $_FILES['image']['name'];
+          $filetype = $_FILES['image']['type'];
+
+          $extension = pathinfo($filename, PATHINFO_EXTENSION);
+
+          if (!array_key_exists($extension, $allowed) || !in_array($filetype, $allowed)) {
+            return $this->render($response, 'basic-page.twig', [
+              'pageTitle' => $this->getLang()['page_error'],
+              'content' => $this->getLang()['shop_hdv_buy_error_message_any'],
+              'redirection_url' => 'admin-home'
+            ]);
+          }
+
+          $newname = $newsEdit['img_url'];
+          $newfilename = $this->preferences->getRootPath() . "/public/assets/general/news/$newname.$extension";
+
+          if (!move_uploaded_file($_FILES['image']['tmp_name'], $newfilename)) {
+            return $this->render($response, 'basic-page.twig', [
+              'pageTitle' => $this->getLang()['page_error'],
+              'content' => $this->getLang()['shop_hdv_buy_error_message_any'],
+              'redirection_url' => 'admin-home'
+            ]);
+          }
+
+          R::exec(
+            'UPDATE cms_news SET title=?, content=?, author=?, img_url=? WHERE id = ?',
+            [
+              $_POST['nTitle'],
+              $_POST['nContent'],
+              $_SESSION['user_Name'],
+              $newname . '.' . $extension,
+              $args['id']
+            ]
+          );
+        } else {
+          R::exec(
+            'UPDATE cms_news SET title=?, content=?, author=? WHERE id = ?',
+            [
+              $_POST['nTitle'],
+              $_POST['nContent'],
+              $_SESSION['user_Name'],
+              $args['id']
+            ]
+          );
+        }
+      }
+    }
+
+
 
     return $this->render($response, 'admin-news.twig', [
       'pageTitle' => "Actualités",
-      'news' => $newsList,
+      'news' => R::getAll('SELECT * FROM cms_news'),
       'newsEdit' => $newsEdit,
-      'imgList' => $imgs
     ]);
   }
 
@@ -129,6 +215,12 @@ class AdminController extends AbstractTwigController
     if (!isset($_SESSION['isAdmin']) || $_SESSION['isAdmin'] < 1) { // Moar admin verif plz
       return $response->withHeader('Location', $this->preferences->getBaseURL());
     }
+
+    $newsEdit = R::findOne('cms_news', 'id = ?', [$args['id']]);
+    if (file_exists($this->preferences->getRootPath() . "/public/assets/general/news/" . $newsEdit['img_url'])) {
+      unlink($this->preferences->getRootPath() . "/public/assets/general/news/" . $newsEdit['img_url']);
+    }
+
     R::hunt(
       'cms_news',
       ' id = ? ',

@@ -38,7 +38,7 @@ class HomeController extends AbstractTwigController
      */
     public function home(Request $request, Response $response, array $args = []): Response
     {
-        $news = R::findAll( 'cms_news' , 'ORDER BY date DESC, id DESC LIMIT 6' );
+        $news = R::findAll('cms_news', 'ORDER BY date DESC, id DESC LIMIT 6');
         return $this->render($response, 'news.twig', [
             'pageTitle' => "Actualités",
             'news' => $news,
@@ -54,7 +54,7 @@ class HomeController extends AbstractTwigController
     public function news(Request $request, Response $response, array $args = []): Response
     {
 
-        $news = R::findOne( 'cms_news', 'id = ?', [$args['id']]);
+        $news = R::findOne('cms_news', 'id = ?', [$args['id']]);
         //$news = R::getAll( 'SELECT * FROM news LIMIT 0,6' );
         return $this->render($response, 'view-news.twig', [
             'pageTitle' => $news['title'],
@@ -63,5 +63,28 @@ class HomeController extends AbstractTwigController
             'author' => $news['author'],
             'date' => $news['date'],
         ]);
+    }
+
+    /**
+     * @param Request  $request
+     * @param Response $response
+     * @param array    $args
+     *
+     * @return Response
+     */
+    public function changeLocal(Request $request, Response $response, array $args = []): Response
+    {
+        $language = $args['lang'];
+        $time = time() + 6 * 30 * 24 * 3600;
+        $last = $_SERVER['HTTP_REFERER'];
+
+        if (isset($_SESSION['user_Id'])) {
+            $_SESSION['language'] = $language;
+        } else {
+            setCookie('language', $language, $time, '/', "", false, true);
+        }
+
+
+        return $response->withHeader('Location', $last);
     }
 }

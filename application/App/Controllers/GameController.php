@@ -6,6 +6,7 @@ namespace App\Controllers;
 
 use App\Preferences;
 use App\Status;
+use DateTime;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Views\Twig;
@@ -58,27 +59,49 @@ class GameController extends AbstractTwigController
      */
     public function leader(Request $request, Response $response, array $args = []): Response
     {
-        $token = R::getAll('SELECT * FROM cms_settings WHERE setting ="api_token"')[0]['default_value'];
+        $rootPath = realpath(__DIR__ . '/../../../');
+
+        $cachefile = $rootPath . '/cache/classement_general.json';
+
+        $cachetime = 3600; // time to cache in seconds
+        $cacheDate = new DateTime();
+
+        if (file_exists($cachefile) && (strtotime(date("F d Y H:i:s.", filectime($cachefile))) > (time() - $cachetime))) {
+            $liste_joueur = file_get_contents($cachefile);
+
+            $liste_joueur = json_decode($liste_joueur);
+            $date = $liste_joueur->date->date;
+            return $this->render($response, 'leader.twig', [
+                'pageTitle' => "Classement joueur",
+                'players' => $liste_joueur->joueurs,
+                'cacheDate' => $date
+            ]);
+        } else {
+            if (file_exists($cachefile)) {
+                unlink($cachefile);
+            }
+        }
+        $cache = fopen($cachefile, 'w');
+
+        $token = $this->preferences->getApiToken();
 
         $rankings = $this->preferences->APIcall_GET($this->preferences->getApiServer(), $token, '/api/v1/players/rank?page=0&pageSize=25&sortDirection=Descending');
         $liste_joueur = [];
-        // die(var_dump($rankings));
-
 
 
         if (isset($rankings['Message']) && $rankings['Message'] == "Authorization has been denied for this request.") {
-            // die('oui');
             $loginAPI = $this->preferences->APIcall_POST($this->preferences->getApiServer(), $this->preferences->getApiData(), "", '/api/oauth/token');
 
-            // die(var_dump($loginAPI['access_token']));
             R::exec(
-                'UPDATE cms_settings SET default_value=? WHERE setting ="api_token"',
+                'UPDATE cms_settings SET default_value=?, value=? WHERE setting ="api_token"',
                 [
+                    $loginAPI['access_token'],
                     $loginAPI['access_token']
                 ]
             );
 
-            $token = R::getAll('SELECT * FROM cms_settings WHERE setting ="api_token"')[0]['default_value'];
+            $token = $this->preferences->getApiToken();
+
             $rankings = $this->preferences->APIcall_GET($this->preferences->getApiServer(), $token, '/api/v1/players/rank?page=0&pageSize=25&sortDirection=Descending');
             if (isset($rankings['Values'])) {
                 foreach ($rankings['Values'] as $rank) {
@@ -96,14 +119,23 @@ class GameController extends AbstractTwigController
 
 
         if ($liste_joueur) {
+
+            $data = ['joueurs' => $liste_joueur, 'date' => new DateTime()];
+            fwrite($cache, json_encode($data));
+            fclose($cache);
+
             return $this->render($response, 'leader.twig', [
                 'pageTitle' => "Classement joueur",
-                'players' => $liste_joueur
+                'players' => $liste_joueur,
+                'cacheDate' => $cacheDate
+
             ]);
         } else {
+
             return $this->render($response, 'leader.twig', [
                 'pageTitle' => "Classement joueur",
-                'players' => 0
+                'players' => 0,
+                'cacheDate' => $cacheDate
             ]);
         }
     }

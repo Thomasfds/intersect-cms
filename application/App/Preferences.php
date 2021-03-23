@@ -4,6 +4,11 @@ declare(strict_types=1);
 
 namespace App;
 
+use App\PHPMailer\PHPMailer;
+use App\PHPMailer\SMTP;
+use RedBeanPHP\R;
+
+
 /**
  * This class contains the preferences for the application.
  *
@@ -29,7 +34,11 @@ class Preferences
     private $dbUser = "root";
     private $dbPassword = "";
     private $dbPort = "3306";
-    private $dbName = "test_rpg";
+    private $dbName = "rpg_test";
+
+    private $smtp = "yoursmtpservice";
+    private $mail_username = "yourusername";
+    private $mail_password = "yourpassword";
 
     /**
      * Preferences constructor.
@@ -142,13 +151,8 @@ class Preferences
      */
     public function getApiToken()
     {
-        return $this->apiToken;
+        return $this->apiToken = R::findOne('cms_settings', 'setting = ?', ["api_token"])['default_value'];
     }
-    public function setApiToken($token)
-    {
-        $this->apiToken = $token;
-    }
-
 
     /**
      * @return array
@@ -225,7 +229,7 @@ class Preferences
             ),
         ));
         $response = curl_exec($ch);
-                // die(var_dump($response));
+        // die(var_dump($response));
 
         if ($response === false) {
             return (curl_error($ch));
@@ -239,5 +243,50 @@ class Preferences
         header("Content-Type: application/json");
         echo json_encode($data);
         exit;
+    }
+
+
+    public function passwordEmail($to, $url)
+    {
+
+        $mail = new PHPMailer();
+        $mail->isSMTP();                                            //Send using SMTP
+        $mail->Host       = $this->smtp;                     //Set the SMTP server to send through
+        $mail->SMTPAuth   = true;                                   //Enable SMTP authentication
+        $mail->Username   = $this->mail_username;                     //SMTP username
+        $mail->Password   = $this->mail_password;                               //SMTP password
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;         //Enable TLS encryption; `PHPMailer::ENCRYPTION_SMTPS` encouraged
+        $mail->Port = 587;
+        $mail->CharSet = 'UTF-8';
+
+        $mail->setFrom('youremail');
+        $mail->addAddress($to);
+
+        $mail->isHTML(true);                                  // Set email format to HTML
+
+        $mail->Subject = 'yourobjet';
+        $mail->Body    = "
+      <p>Bonjour,</p>
+      <p>            
+      Merci pour votre fidélité sur DragonBall Z: Shukuteki, nous avons reçu une demande de réinitialisation de mot de passe du compte associé à cette adresse e-email.
+      </p>
+      <p>
+      Pour confirmer et réinitialiser votre mot de passe cliquer <a href=" . $url . ">ici</a> , cette action est obligatoire pour évitez tous abus et spam.
+      </p>
+      <p>
+      Si vous n'avez pas effectuer cette demande, contactez l'équipe du jeu, ignorer et effacer cet email.
+      </p>
+      <p>
+      Pour toutes autres questions, hésitez pas à nous les posez sur notre Discord.
+      </p>
+      <p>
+      Cordialement,
+      <br>
+      L'équipe DragonBall Z: Shukuteki
+      </p>";
+
+        if ($mail->send()) {
+            return true;
+        }
     }
 }

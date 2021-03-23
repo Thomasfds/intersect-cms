@@ -7,14 +7,13 @@
 {% block seo %}
 	<!-- Primary Meta Tags -->
 	<meta name="title" content="{{pageTitle}}">
-	<meta
-	name="description" content="DragonBallZ: Shukuteki, jeu retrancant l'histoire originale de l'animé en jeu MMORPG 2D, le jeu n'attend plus que vous !">
+	<meta name="description" content="yourdescription">
 
 	<!-- Open Graph / Facebook -->
 	<meta property="og:type" content="website">
 	<meta property="og:url" content="{{current_url}}">
 	<meta property="og:title" content="{{pageTitle}}">
-	<meta property="og:description" content="DragonBallZ: Shukuteki, jeu retrancant l'histoire originale de l'animé en jeu MMORPG 2D, le jeu n'attend plus que vous !">
+	<meta property="og:description" content="yourdescription">
 	<meta
 	property="og:image" content="{{ globalAssetsPath }}seo/seo.png">
 
@@ -22,7 +21,7 @@
 	<meta property="twitter:card" content="summary_large_image">
 	<meta property="twitter:url" content="{{current_url}}">
 	<meta property="twitter:title" content="{{pageTitle}}">
-	<meta property="twitter:description" content="DragonBallZ: Shukuteki, jeu retrancant l'histoire originale de l'animé en jeu MMORPG 2D, le jeu n'attend plus que vous !">
+	<meta property="twitter:description" content="yourdescription">
 	<meta property="twitter:image" content="{{ globalAssetsPath }}seo/seo.png">
 {% endblock %}
 
@@ -38,15 +37,14 @@
 	<div id="middle">
 		<ul class="nav nav-tabs card-header-tabs mb-2">
 			<li class="nav-item">
-				<button id="all" class="nav-link active" aria-current="true" href="#!">Tout les joueurs</button>
+				<button id="all" class="nav-link active" aria-current="true" href="#!">{{ lang['playersList_all'] }}</button>
 			</li>
 			<li class="nav-item">
-				<button id="online" class="nav-link" href="#!">Joueurs en ligne</button>
+				<button id="online" class="nav-link" href="#!">{{ lang['playersList_connected'] }}</button>
 			</li>
 		</ul>
 
 		<div id="content-page"></div>
-
 	</div>
 {% endblock %}
 
