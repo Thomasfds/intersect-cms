@@ -627,6 +627,7 @@ class UserController extends AbstractTwigController
             // die(var_dump($newspassword));
 
             if ($newspassword === "Password updated.") {
+              
               R::exec(
                 'UPDATE cms_users SET password_token=?, password=?  WHERE username = ?',
                 [
@@ -635,6 +636,7 @@ class UserController extends AbstractTwigController
                   $username
                 ]
               );
+
               return $this->render($response, 'password-reset/reset.twig', [
                 'pageTitle' => "Mot de passe oublié",
                 'content' => 'Votre mot de passe à bien été modifier.'
