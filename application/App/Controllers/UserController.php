@@ -71,7 +71,7 @@ class UserController extends AbstractTwigController
       ]);
     }
 
-    if ($this->preferences->getApiToken() != null) {
+    if ($this->preferences->getApiToken() == null) {
       return $this->render($response, 'basic-page.twig', [
         'pageTitle' => "API Error",
         'content' => "Server did not receive a response...<br>check your ports, ip, settings,...Server\\resources\config\api.config.json should have the correct ip's and hosts set up.",
